@@ -13,3 +13,4 @@ Agda resources:
 * [Agda wiki](http://wiki.portal.chalmers.se/agda/pmwiki.php), includes installation info
 * [Official HoTT-Agda repo](https://github.com/HoTT/HoTT-Agda)
 * [Agda mode for Atom text editor](https://atom.io/packages/agda-mode), for those allergic to emacs
+* [Martin Escardo Agda and MLTT tutorial file](http://www.cs.bham.ac.uk/~mhe/AgdaTutorial/html/AgdaTutorial.html). Delete the last two components of the URL to get easy access to the raw .agda file.
