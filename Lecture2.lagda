@@ -1,4 +1,4 @@
-module INTRO where
+module Lecture2 where
 
 data ℕ : Set where
   Nzero : ℕ
@@ -8,9 +8,9 @@ _+_ : ℕ → (ℕ → ℕ)
   Nzero + n = n
   (Nsucc m) + m = Nsucc (n + m)
 
-_*_ : ℕ → (ℕ → ℕ)
-  Nzero * n = Nzero
-  (Nsucc m) * n = (m * n) + n
+_**_ : ℕ → (ℕ → ℕ)
+  Nzero ** n = Nzero
+  (Nsucc m) ** n = (m ** n) + n
 
 _^_ : ℕ → (ℕ → ℕ)
   m ^ Nzero = Nsucc Nzero
