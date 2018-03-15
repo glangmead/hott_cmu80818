@@ -14,7 +14,7 @@ _∘_ : {A B C : Type} → (B → C) → ((A → B) → (A → C))
 g ∘ f = comp g f
 
 -- Lemma 2.2.5
-comp-is-assoc : comp h (comp g f)
+-- comp-is-assoc : comp h (comp g f)
 
 data ℕ : Type where
   Nzero : ℕ
