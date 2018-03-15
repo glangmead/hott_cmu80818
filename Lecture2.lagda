@@ -5,7 +5,7 @@
 module Lecture2 where
 
 import Basics
-open Basics
+open Basics public
 
 -- Definition 2.2.3 define identity, and show lambda-abstraction in so doing
 id : {i : Level} {A : UU i} → A → A
