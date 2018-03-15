@@ -48,16 +48,69 @@ A × B = prod A B
 pair : {i j : Level} {A : UU i} {B : UU j} → A → (B → prod A B)
 pair a b = dpair a b
 
+-- Pointed types
+U-pt : Type
+U-pt = Sigma U (λ X → X)
+
+-- Graphs
+Gph : Type
+Gph = Sigma U (λ X → (X → X → U))
+
+-- Reflexive graphs
+rGph : Type
+rGph = Sigma U (λ X → Sigma (X → X → U) (λ R → (x : X) → R x x))
+
+-- Finite sets
 Fin : ℕ → U
 Fin Nzero = empty
 Fin (Nsucc n) = coprod (Fin n) unit
 
+-- Observational equality on the natural numbers
 EqN : ℕ → (ℕ → U)
 EqN Nzero Nzero = 𝟙
 EqN Nzero (Nsucc n) = 𝟘
 EqN (Nsucc m) Nzero = 𝟘
 EqN (Nsucc m) (Nsucc n) = EqN m n
 
+-- The integers
+ℤ : U
+ℤ = coprod ℕ (coprod unit ℕ)
+
+in-neg : ℕ → ℤ
+in-neg n = inl n
+
+Zneg-one : ℤ
+Zneg-one = in-neg Nzero
+
+Zzero : ℤ
+Zzero = inr (inl star)
+
+Zone : ℤ
+Zone = inr (inr Nzero)
+
+in-pos : ℕ → ℤ
+in-pos n = inr (inr n)
+
+-- Since Agda is already strong with nested induction, I dont think we need this definition.
+ind-ℤ : {i : Level} (P : ℤ → UU i) → P Zneg-one → ((n : ℕ) → P (inl n) → P (inl (Nsucc n))) → P Zzero → P Zone → ((n : ℕ) → P (inr (inr (n))) → P (inr (inr (Nsucc n)))) → (k : ℤ) → P k
+ind-ℤ P p-1 p-S p0 p1 pS (inl Nzero) = p-1
+ind-ℤ P p-1 p-S p0 p1 pS (inl (Nsucc x)) = p-S x (ind-ℤ P p-1 p-S p0 p1 pS (inl x))
+ind-ℤ P p-1 p-S p0 p1 pS (inr (inl star)) = p0
+ind-ℤ P p-1 p-S p0 p1 pS (inr (inr Nzero)) = p1
+ind-ℤ P p-1 p-S p0 p1 pS (inr (inr (Nsucc x))) = pS x (ind-ℤ P p-1 p-S p0 p1 pS (inr (inr (x))))
+
+Zsucc : ℤ → ℤ
+Zsucc (inl Nzero) = Zzero
+Zsucc (inl (Nsucc x)) = inl x
+Zsucc (inr (inl x)) = Zone
+Zsucc (inr (inr x)) = inr (inr (Nsucc x))
+
+-- Exercise 3.1
+dne-dec : {i : Level} (A : UU i) → (coprod A (¬ A)) → (¬ (¬ A) → A)
+dne-dec A (inl x) = λ t → x
+dne-dec A (inr x) = λ f → ind-empty (f x)
+
+-- Exercise 3.3
 reflexive-EqN : (n : ℕ) → EqN n n
 reflexive-EqN Nzero = star
 reflexive-EqN (Nsucc n) = reflexive-EqN n
@@ -171,6 +224,81 @@ ind-coprod-unit-unit p0 p1 (inl star) = p0
 ind-coprod-unit-unit p0 p1 (inr star) = p1
 
 -- Exercise 3.10
+leqZ : ℤ → ℤ → U
+leqZ (inl Nzero) (inl Nzero) = unit
+leqZ (inl Nzero) (inl (Nsucc x)) = empty
+leqZ (inl Nzero) (inr l) = unit
+leqZ (inl (Nsucc x)) (inl Nzero) = unit
+leqZ (inl (Nsucc x)) (inl (Nsucc y)) = leqZ (inl x) (inl y)
+leqZ (inl (Nsucc x)) (inr l) = unit
+leqZ (inr k) (inl x) = empty
+leqZ (inr (inl star)) (inr l) = unit
+leqZ (inr (inr x)) (inr (inl star)) = empty
+leqZ (inr (inr Nzero)) (inr (inr y)) = unit
+leqZ (inr (inr (Nsucc x))) (inr (inr Nzero)) = empty
+leqZ (inr (inr (Nsucc x))) (inr (inr (Nsucc y))) = leqZ (inr (inr (x))) (inr (inr (y)))
 
+reflexive-leqZ : (k : ℤ) → leqZ k k
+reflexive-leqZ (inl Nzero) = star
+reflexive-leqZ (inl (Nsucc x)) = reflexive-leqZ (inl x)
+reflexive-leqZ (inr (inl star)) = star
+reflexive-leqZ (inr (inr Nzero)) = star
+reflexive-leqZ (inr (inr (Nsucc x))) = reflexive-leqZ (inr (inr x))
+
+transitive-leqZ : (k l m : ℤ) → leqZ k l → leqZ l m → leqZ k m
+transitive-leqZ (inl Nzero) (inl Nzero) m p q = q
+transitive-leqZ (inl Nzero) (inl (Nsucc x)) m p q = ind-empty p
+transitive-leqZ (inl Nzero) (inr (inl star)) (inl Nzero) star q = reflexive-leqZ (inl Nzero)
+transitive-leqZ (inl Nzero) (inr (inl star)) (inl (Nsucc x)) star q = ind-empty q
+transitive-leqZ (inl Nzero) (inr (inl star)) (inr (inl star)) star q = star
+transitive-leqZ (inl Nzero) (inr (inl star)) (inr (inr x)) star q = star
+transitive-leqZ (inl Nzero) (inr (inr x)) (inl y) star q = ind-empty q
+transitive-leqZ (inl Nzero) (inr (inr x)) (inr (inl star)) star q = ind-empty q
+transitive-leqZ (inl Nzero) (inr (inr x)) (inr (inr y)) star q = star
+transitive-leqZ (inl (Nsucc x)) (inl Nzero) (inl Nzero) star q = star
+transitive-leqZ (inl (Nsucc x)) (inl Nzero) (inl (Nsucc y)) star q = ind-empty q
+transitive-leqZ (inl (Nsucc x)) (inl Nzero) (inr m) star q = star
+transitive-leqZ (inl (Nsucc x)) (inl (Nsucc y)) (inl Nzero) p q = star
+transitive-leqZ (inl (Nsucc x)) (inl (Nsucc y)) (inl (Nsucc z)) p q = transitive-leqZ (inl x) (inl y) (inl z) p q
+transitive-leqZ (inl (Nsucc x)) (inl (Nsucc y)) (inr m) p q = star
+transitive-leqZ (inl (Nsucc x)) (inr y) (inl z) star q = ind-empty q
+transitive-leqZ (inl (Nsucc x)) (inr y) (inr z) star q = star
+transitive-leqZ (inr k) (inl x) m p q = ind-empty p
+transitive-leqZ (inr (inl star)) (inr l) (inl x) star q = ind-empty q
+transitive-leqZ (inr (inl star)) (inr l) (inr m) star q = star
+transitive-leqZ (inr (inr x)) (inr (inl star)) m p q = ind-empty p
+transitive-leqZ (inr (inr Nzero)) (inr (inr Nzero)) m p q = q
+transitive-leqZ (inr (inr Nzero)) (inr (inr (Nsucc y))) (inl x) star q = ind-empty q
+transitive-leqZ (inr (inr Nzero)) (inr (inr (Nsucc y))) (inr (inl star)) star q = ind-empty q
+transitive-leqZ (inr (inr Nzero)) (inr (inr (Nsucc y))) (inr (inr z)) star q = star
+transitive-leqZ (inr (inr (Nsucc x))) (inr (inr Nzero)) m p q = ind-empty p
+transitive-leqZ (inr (inr (Nsucc x))) (inr (inr (Nsucc y))) (inl z) p q = ind-empty q
+transitive-leqZ (inr (inr (Nsucc x))) (inr (inr (Nsucc y))) (inr (inl star)) p q = ind-empty q
+transitive-leqZ (inr (inr (Nsucc x))) (inr (inr (Nsucc y))) (inr (inr z)) p q = {!!}
+
+succ-leqZ : (k l : ℤ) → leqZ k l → leqZ k (Zsucc l)
+succ-leqZ (inl Nzero) (inl Nzero) p = star
+succ-leqZ (inl Nzero) (inl (Nsucc y)) p = ind-empty p
+succ-leqZ (inl (Nsucc x)) (inl Nzero) p = star
+succ-leqZ (inl (Nsucc x)) (inl (Nsucc y)) p = succ-leqZ (inl (Nsucc x)) {!!} {!!}
+succ-leqZ (inl x) (inr y) p = {!!}
+succ-leqZ (inr k) l p = {!!}
+
+leZ : ℤ → ℤ → U
+leZ (inl Nzero) (inl x) = empty
+leZ (inl Nzero) (inr y) = unit
+leZ (inl (Nsucc x)) (inl Nzero) = unit
+leZ (inl (Nsucc x)) (inl (Nsucc y)) = leZ (inl x) (inl y)
+leZ (inl (Nsucc x)) (inr y) = unit
+leZ (inr x) (inl y) = empty
+leZ (inr (inl star)) (inr (inl star)) = empty
+leZ (inr (inl star)) (inr (inr x)) = unit
+leZ (inr (inr x)) (inr (inl star)) = empty
+leZ (inr (inr Nzero)) (inr (inr Nzero)) = empty
+leZ (inr (inr Nzero)) (inr (inr (Nsucc y))) = unit
+leZ (inr (inr (Nsucc x))) (inr (inr Nzero)) = empty
+leZ (inr (inr (Nsucc x))) (inr (inr (Nsucc y))) = leZ (inr (inr x)) (inr (inr y))
+
+-- ind-leqZ : (k : ℤ) {i : Level} (P : (l : ℤ) (leqZ k l) → UU i) → P k (reflexive-leqZ k) → ((l : ℤ) (p : leqZ k l) → P l p → P (Zsucc l) (succ-leqZ l p)) → (l : ℤ) (p : leqZ k l) → P l p
 
 \end{code}

@@ -44,6 +44,10 @@ add = ind-N add0 addS
 _+_ : ℕ → ℕ → ℕ
 n + m = add n m
 
+-- Exercise 2.3
+const : {i j : Level} (A : UU i) (B : UU j) (b : B) → A → B
+const A B b x = b
+
 -- Exercise 2.4
 Pi_swap : {i j k : Level} {A : UU i} {B : UU j} {C : A → (B → UU k)} →
   ((x : A) (y : B) → C x y) → ((y : B) (x : A) → C x y)
