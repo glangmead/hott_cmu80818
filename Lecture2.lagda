@@ -3,6 +3,19 @@ module Lecture2 where
 
 Type = Set
 
+-- Definition 2.2.3 define identity, and show lambda-abstraction in so doing
+id : {A : Type} → A → A
+id = λ a → a -- can also use plain backslash \ instead of lambda (as it resembles lambda?)
+
+-- Definition 2.2.4
+comp : {A B C : Type} → (B → C) → ((A → B) → (A → C))
+comp = \g f a → g(f(a)) -- the lambda extends to cover g, f and a
+_∘_ : {A B C : Type} → (B → C) → ((A → B) → (A → C))
+g ∘ f = comp g f
+
+-- Lemma 2.2.5
+comp-is-assoc : comp h (comp g f)
+
 data ℕ : Type where
   Nzero : ℕ
   Nsucc : ℕ → ℕ
@@ -22,6 +35,10 @@ addS : ℕ → (ℕ → ℕ) → (ℕ → ℕ)
 addS n f m = Nsucc (f m)
 add : ℕ → ℕ → ℕ
 add = ind-N add0 addS
+
+-- try some examples, hit C-c C-n (or whatever "compute normal form" is bound to)
+-- and try entering "add (Nsucc Nzero) (Nsucc (Nsucc Nzero))"
+-- you should get "Nsucc (Nsucc (Nsucc Nzero))"
 
 _+_ : ℕ → ℕ → ℕ
 n + m = add n m
@@ -47,4 +64,7 @@ Nmin : ℕ → (ℕ → ℕ)
 Nmin Nzero n = Nzero
 Nmin (Nsucc m) Nzero = Nzero
 Nmin (Nsucc m) (Nsucc n) = Nsucc (Nmin m n)
+
+-- Excercise 2.1
+
 \end{code}
