@@ -9,12 +9,16 @@ open Lecture2
 
 data unit : U where
   star : unit
+  
 𝟙 = unit
+
 ind-unit : {i : Level} {P : unit → UU i} → P star → ((x : unit) → P x)
 ind-unit p star = p
 
 data empty : U where
+
 𝟘 = empty
+
 ind-empty : {i : Level} {P : empty → UU i} → ((x : empty) → P x)
 ind-empty ()
 
@@ -76,18 +80,23 @@ EqN (Nsucc m) (Nsucc n) = EqN m n
 ℤ : U
 ℤ = coprod ℕ (coprod unit ℕ)
 
+-- Inclusion of the negative integers
 in-neg : ℕ → ℤ
 in-neg n = inl n
 
+-- Negative one
 Zneg-one : ℤ
 Zneg-one = in-neg Nzero
 
+-- Zero
 Zzero : ℤ
 Zzero = inr (inl star)
 
+-- One
 Zone : ℤ
 Zone = inr (inr Nzero)
 
+-- Inclusion of the positive integers
 in-pos : ℕ → ℤ
 in-pos n = inr (inr n)
 
@@ -106,11 +115,14 @@ Zsucc (inr (inl x)) = Zone
 Zsucc (inr (inr x)) = inr (inr (Nsucc x))
 
 -- Exercise 3.1
+-- In this exercise we were asked to show that (A + ¬A) implies (¬¬A → A).
+-- In other words, we get double negation elimination for the types that are decidable
 dne-dec : {i : Level} (A : UU i) → (coprod A (¬ A)) → (¬ (¬ A) → A)
 dne-dec A (inl x) = λ t → x
 dne-dec A (inr x) = λ f → ind-empty (f x)
 
 -- Exercise 3.3
+-- In this exercise we were asked to show that the observational equality on ℕ is an equivalence relation.
 reflexive-EqN : (n : ℕ) → EqN n n
 reflexive-EqN Nzero = star
 reflexive-EqN (Nsucc n) = reflexive-EqN n
@@ -132,20 +144,31 @@ transitive-EqN Nzero (Nsucc m) (Nsucc n) s t = ind-empty s
 transitive-EqN (Nsucc l) (Nsucc m) (Nsucc n) s t = transitive-EqN l m n s t
 
 -- Exercise 3.4
-least-reflexive-EqN' : {i : Level} (n m : ℕ) (R : ℕ → ℕ → UU i) (ρ : (n : ℕ) → R n n) → EqN n m → R n m
+-- In this exercise we were asked to show that observational equality on the natural numbers is the least reflexive relation, in the sense that it implies all other reflexive relation. As we will see once we introduce the identity type, it follows that observationally equal natural numbers can be identified.
+
+-- We first make an auxilary construction, where the relation is quantified over inside the scope of the variables n and m. This is to ensure that the inductive hypothesis is strong enough to make the induction go through.
+least-reflexive-EqN' : {i : Level} (n m : ℕ)
+                     (R : ℕ → ℕ → UU i) (ρ : (n : ℕ) → R n n) → EqN n m → R n m
 least-reflexive-EqN' Nzero Nzero R ρ p = ρ Nzero
 least-reflexive-EqN' Nzero (Nsucc m) R ρ = ind-empty
 least-reflexive-EqN' (Nsucc n) Nzero R ρ = ind-empty
-least-reflexive-EqN' (Nsucc n) (Nsucc m) R ρ = least-reflexive-EqN' n m (λ x y → R (Nsucc x) (Nsucc y)) (λ x → ρ (Nsucc x))
+least-reflexive-EqN' (Nsucc n) (Nsucc m) R ρ =
+  least-reflexive-EqN' n m (λ x y → R (Nsucc x) (Nsucc y)) (λ x → ρ (Nsucc x))
 
-least-reflexive-EqN : {i : Level} {R : ℕ → ℕ → UU i} (ρ : (n : ℕ) → R n n) → (n m : ℕ) → EqN n m → R n m
+-- Now we solve the actual exercise by rearranging the order of the variables.
+least-reflexive-EqN : {i : Level} {R : ℕ → ℕ → UU i}
+  (ρ : (n : ℕ) → R n n) → (n m : ℕ) → EqN n m → R n m
 least-reflexive-EqN ρ n m p = least-reflexive-EqN' n m _ ρ p
 
 -- Exercise 3.5
+-- In this exercise we were asked to show that any function on the natural numbers preserves observational equality. The quick solution uses the fact that observational equality is the least reflexive relation.
 preserve_EqN : (f : ℕ → ℕ) (n m : ℕ) → (EqN n m) → (EqN (f n) (f m))
-preserve_EqN f = least-reflexive-EqN {_} {λ x y → EqN (f x) (f y)} (λ x → reflexive-EqN (f x))
+preserve_EqN f =
+    least-reflexive-EqN {_} {λ x y → EqN (f x) (f y)}
+      (λ x → reflexive-EqN (f x))
 
 -- Exercise 3.6
+-- In this exercise we were asked to construct the relations ≤ and < on the natural numbers, and show basic properties about them.
 
 -- Definition of ≤ 
 leqN : ℕ → ℕ → U
@@ -192,10 +215,12 @@ succ-leN Nzero = star
 succ-leN (Nsucc n) = succ-leN n
 
 -- Exercise 3.7
+-- With the construction of the divisibility relation we open the door to basic number theory.
 divides : (d n : ℕ) → U
 divides d n = Sigma ℕ (λ m → EqN (d ** m) n)
 
 -- Exercise 3.8
+-- In this exercise we were asked to construct observational equality on the booleans. This construction is analogous to, but simpler than, the construction of observational equality on the natural numbers.
 Eq2 : bool → bool → U
 Eq2 true true = unit
 Eq2 true false = empty
@@ -206,24 +231,31 @@ reflexive-Eq2 : (x : bool) → Eq2 x x
 reflexive-Eq2 true = star
 reflexive-Eq2 false = star
 
-least-reflexive-Eq2 : {i : Level} (R : bool → bool → UU i) (ρ : (x : bool) → R x x) (x y : bool) → Eq2 x y → R x y
+least-reflexive-Eq2 : {i : Level}
+  (R : bool → bool → UU i) (ρ : (x : bool) → R x x)
+  (x y : bool) → Eq2 x y → R x y
 least-reflexive-Eq2 R ρ true true p = ρ true
 least-reflexive-Eq2 R ρ true false p = ind-empty p
 least-reflexive-Eq2 R ρ false true p = ind-empty p
 least-reflexive-Eq2 R ρ false false p = ρ false
 
 -- Exercise 3.9
+-- In this exercise we were asked to show that 1 + 1 satisfies the induction principle of the booleans. In other words, type theory cannot distinguish the booleans from the type 1 + 1. We will see later that they are indeed equivalent types.
 t0 : coprod unit unit
 t0 = inl star
 
 t1 : coprod unit unit
 t1 = inr star
 
-ind-coprod-unit-unit : {i : Level} {P : coprod unit unit → UU i} → P t0 → P t1 → (x : coprod unit unit) → P x
+ind-coprod-unit-unit : {i : Level} {P : coprod unit unit → UU i} →
+  P t0 → P t1 → (x : coprod unit unit) → P x
 ind-coprod-unit-unit p0 p1 (inl star) = p0
 ind-coprod-unit-unit p0 p1 (inr star) = p1
 
 -- Exercise 3.10
+-- In this exercise we were asked to define the relations ≤ and < on the integers. As a criterion of correctness, we were then also asked to show that the type of all integers l satisfying k ≤ l satisfy the induction principle of the natural numbers.
+-- It turns out that this is a long exercise that requires to develop intermediate properties of the relation ≤, involving long proofs. None of them is really hard, but they are probably unintelligible because induction on the integers splits into so many cases.
+
 leqZ : ℤ → ℤ → U
 leqZ (inl Nzero) (inl Nzero) = unit
 leqZ (inl Nzero) (inl (Nsucc x)) = empty
@@ -236,7 +268,8 @@ leqZ (inr (inl star)) (inr l) = unit
 leqZ (inr (inr x)) (inr (inl star)) = empty
 leqZ (inr (inr Nzero)) (inr (inr y)) = unit
 leqZ (inr (inr (Nsucc x))) (inr (inr Nzero)) = empty
-leqZ (inr (inr (Nsucc x))) (inr (inr (Nsucc y))) = leqZ (inr (inr (x))) (inr (inr (y)))
+leqZ (inr (inr (Nsucc x))) (inr (inr (Nsucc y))) =
+  leqZ (inr (inr (x))) (inr (inr (y)))
 
 reflexive-leqZ : (k : ℤ) → leqZ k k
 reflexive-leqZ (inl Nzero) = star
@@ -248,18 +281,23 @@ reflexive-leqZ (inr (inr (Nsucc x))) = reflexive-leqZ (inr (inr x))
 transitive-leqZ : (k l m : ℤ) → leqZ k l → leqZ l m → leqZ k m
 transitive-leqZ (inl Nzero) (inl Nzero) m p q = q
 transitive-leqZ (inl Nzero) (inl (Nsucc x)) m p q = ind-empty p
-transitive-leqZ (inl Nzero) (inr (inl star)) (inl Nzero) star q = reflexive-leqZ (inl Nzero)
-transitive-leqZ (inl Nzero) (inr (inl star)) (inl (Nsucc x)) star q = ind-empty q
+transitive-leqZ (inl Nzero) (inr (inl star)) (inl Nzero) star q =
+  reflexive-leqZ (inl Nzero)
+transitive-leqZ (inl Nzero) (inr (inl star)) (inl (Nsucc x)) star q =
+  ind-empty q
 transitive-leqZ (inl Nzero) (inr (inl star)) (inr (inl star)) star q = star
 transitive-leqZ (inl Nzero) (inr (inl star)) (inr (inr x)) star q = star
 transitive-leqZ (inl Nzero) (inr (inr x)) (inl y) star q = ind-empty q
-transitive-leqZ (inl Nzero) (inr (inr x)) (inr (inl star)) star q = ind-empty q
+transitive-leqZ (inl Nzero) (inr (inr x)) (inr (inl star)) star q =
+  ind-empty q
 transitive-leqZ (inl Nzero) (inr (inr x)) (inr (inr y)) star q = star
 transitive-leqZ (inl (Nsucc x)) (inl Nzero) (inl Nzero) star q = star
-transitive-leqZ (inl (Nsucc x)) (inl Nzero) (inl (Nsucc y)) star q = ind-empty q
+transitive-leqZ (inl (Nsucc x)) (inl Nzero) (inl (Nsucc y)) star q =
+  ind-empty q
 transitive-leqZ (inl (Nsucc x)) (inl Nzero) (inr m) star q = star
 transitive-leqZ (inl (Nsucc x)) (inl (Nsucc y)) (inl Nzero) p q = star
-transitive-leqZ (inl (Nsucc x)) (inl (Nsucc y)) (inl (Nsucc z)) p q = transitive-leqZ (inl x) (inl y) (inl z) p q
+transitive-leqZ (inl (Nsucc x)) (inl (Nsucc y)) (inl (Nsucc z)) p q =
+  transitive-leqZ (inl x) (inl y) (inl z) p q
 transitive-leqZ (inl (Nsucc x)) (inl (Nsucc y)) (inr m) p q = star
 transitive-leqZ (inl (Nsucc x)) (inr y) (inl z) star q = ind-empty q
 transitive-leqZ (inl (Nsucc x)) (inr y) (inr z) star q = star
@@ -268,21 +306,34 @@ transitive-leqZ (inr (inl star)) (inr l) (inl x) star q = ind-empty q
 transitive-leqZ (inr (inl star)) (inr l) (inr m) star q = star
 transitive-leqZ (inr (inr x)) (inr (inl star)) m p q = ind-empty p
 transitive-leqZ (inr (inr Nzero)) (inr (inr Nzero)) m p q = q
-transitive-leqZ (inr (inr Nzero)) (inr (inr (Nsucc y))) (inl x) star q = ind-empty q
-transitive-leqZ (inr (inr Nzero)) (inr (inr (Nsucc y))) (inr (inl star)) star q = ind-empty q
-transitive-leqZ (inr (inr Nzero)) (inr (inr (Nsucc y))) (inr (inr z)) star q = star
+transitive-leqZ (inr (inr Nzero)) (inr (inr (Nsucc y))) (inl x) star q =
+  ind-empty q
+transitive-leqZ (inr (inr Nzero)) (inr (inr (Nsucc y))) (inr (inl star))
+                star q =
+  ind-empty q
+transitive-leqZ (inr (inr Nzero)) (inr (inr (Nsucc y))) (inr (inr z))
+                star q = star
 transitive-leqZ (inr (inr (Nsucc x))) (inr (inr Nzero)) m p q = ind-empty p
-transitive-leqZ (inr (inr (Nsucc x))) (inr (inr (Nsucc y))) (inl z) p q = ind-empty q
-transitive-leqZ (inr (inr (Nsucc x))) (inr (inr (Nsucc y))) (inr (inl star)) p q = ind-empty q
-transitive-leqZ (inr (inr (Nsucc x))) (inr (inr (Nsucc y))) (inr (inr z)) p q = {!!}
+transitive-leqZ (inr (inr (Nsucc x))) (inr (inr (Nsucc y))) (inl z) p q =
+  ind-empty q
+transitive-leqZ (inr (inr (Nsucc x))) (inr (inr (Nsucc y)))
+  (inr (inl star)) p q = ind-empty q
+transitive-leqZ (inr (inr (Nsucc x))) (inr (inr (Nsucc y)))
+  (inr (inr Nzero)) p q = ind-empty q
+transitive-leqZ (inr (inr (Nsucc x))) (inr (inr (Nsucc y)))
+  (inr (inr (Nsucc z))) p q =
+  transitive-leqZ (inr (inr x)) (inr (inr y)) (inr (inr z)) p q
 
-succ-leqZ : (k l : ℤ) → leqZ k l → leqZ k (Zsucc l)
-succ-leqZ (inl Nzero) (inl Nzero) p = star
-succ-leqZ (inl Nzero) (inl (Nsucc y)) p = ind-empty p
-succ-leqZ (inl (Nsucc x)) (inl Nzero) p = star
-succ-leqZ (inl (Nsucc x)) (inl (Nsucc y)) p = succ-leqZ (inl (Nsucc x)) {!!} {!!}
-succ-leqZ (inl x) (inr y) p = {!!}
-succ-leqZ (inr k) l p = {!!}
+succ-leqZ : (k : ℤ) → leqZ k (Zsucc k)
+succ-leqZ (inl Nzero) = star
+succ-leqZ (inl (Nsucc Nzero)) = star
+succ-leqZ (inl (Nsucc (Nsucc x))) = succ-leqZ (inl (Nsucc x))
+succ-leqZ (inr (inl star)) = star
+succ-leqZ (inr (inr Nzero)) = star
+succ-leqZ (inr (inr (Nsucc x))) = succ-leqZ (inr (inr x))
+
+leqZ-succ-leqZ : (k l : ℤ) → leqZ k l → leqZ k (Zsucc l)
+leqZ-succ-leqZ k l p = transitive-leqZ k l (Zsucc l) p (succ-leqZ l)
 
 leZ : ℤ → ℤ → U
 leZ (inl Nzero) (inl x) = empty
@@ -297,8 +348,21 @@ leZ (inr (inr x)) (inr (inl star)) = empty
 leZ (inr (inr Nzero)) (inr (inr Nzero)) = empty
 leZ (inr (inr Nzero)) (inr (inr (Nsucc y))) = unit
 leZ (inr (inr (Nsucc x))) (inr (inr Nzero)) = empty
-leZ (inr (inr (Nsucc x))) (inr (inr (Nsucc y))) = leZ (inr (inr x)) (inr (inr y))
+leZ (inr (inr (Nsucc x))) (inr (inr (Nsucc y))) =
+  leZ (inr (inr x)) (inr (inr y))
 
--- ind-leqZ : (k : ℤ) {i : Level} (P : (l : ℤ) (leqZ k l) → UU i) → P k (reflexive-leqZ k) → ((l : ℤ) (p : leqZ k l) → P l p → P (Zsucc l) (succ-leqZ l p)) → (l : ℤ) (p : leqZ k l) → P l p
+ind-Z-leqZ : (k : ℤ) {i : Level} (P : (l : ℤ) → (leqZ k l) → UU i) →
+  P k (reflexive-leqZ k) →
+  ((l : ℤ) (p : leqZ k l) → P l p → P (Zsucc l) (leqZ-succ-leqZ k l p)) →
+  (l : ℤ) (p : leqZ k l) → P l p
+ind-Z-leqZ (inl Nzero) P pk pS (inl Nzero) star = pk
+ind-Z-leqZ (inl Nzero) P pk pS (inl (Nsucc x)) ()
+ind-Z-leqZ (inl Nzero) P pk pS (inr (inl star)) star = pS (inl Nzero) star pk
+ind-Z-leqZ (inl Nzero) P pk pS (inr (inr Nzero)) star = pS (inr (inl star)) star (pS (inl Nzero) star pk)
+ind-Z-leqZ (inl Nzero) P pk pS (inr (inr (Nsucc x))) star = pS (inr (inr x)) star (ind-Z-leqZ (inl Nzero) P pk pS (inr (inr x)) star)
+ind-Z-leqZ (inl (Nsucc x)) P pk pS (inl Nzero) star = {!!}
+ind-Z-leqZ (inl (Nsucc x)) P pk pS (inl (Nsucc y)) p = {!!}
+ind-Z-leqZ (inl (Nsucc x)) P pk pS (inr y) p = {!!}
+ind-Z-leqZ (inr k) P pk pS l p = {!!}
 
 \end{code}
