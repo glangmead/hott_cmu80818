@@ -365,4 +365,24 @@ ind-Z-leqZ (inl (Nsucc x)) P pk pS (inl (Nsucc y)) p = {!!}
 ind-Z-leqZ (inl (Nsucc x)) P pk pS (inr y) p = {!!}
 ind-Z-leqZ (inr k) P pk pS l p = {!!}
 
+-- Exercise 3.11
+Zpred : ℤ → ℤ
+Zpred (inl x) = inl (Nsucc x)
+Zpred (inr (inl star)) = inl Nzero
+Zpred (inr (inr Nzero)) = inr (inl star)
+Zpred (inr (inr (Nsucc x))) = inr (inr x)
+
+-- Exercise 3.12
+Zadd : ℤ → ℤ → ℤ
+Zadd (inl Nzero) l = Zpred l
+Zadd (inl (Nsucc x)) l = Zpred (Zadd (inl x) l)
+Zadd (inr (inl star)) l = l
+Zadd (inr (inr Nzero)) l = Zsucc l
+Zadd (inr (inr (Nsucc x))) l = Zsucc (Zadd (inr (inr x)) l)
+
+Zneg : ℤ → ℤ
+Zneg (inl x) = inr (inr x)
+Zneg (inr (inl star)) = inr (inl star)
+Zneg (inr (inr x)) = inl x
+
 \end{code}
