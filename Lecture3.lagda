@@ -5,7 +5,7 @@
 module Lecture3 where
 
 import Lecture2
-open Lecture2
+open Lecture2 public
 
 data unit : U where
   star : unit
@@ -177,6 +177,8 @@ leqN Nzero (Nsucc m) = unit
 leqN (Nsucc n) Nzero = empty
 leqN (Nsucc n) (Nsucc m) = leqN n m
 
+_≤_ = leqN
+
 -- Definition of <
 leN : ℕ → ℕ → U
 leN Nzero Nzero = empty
@@ -184,15 +186,17 @@ leN Nzero (Nsucc m) = unit
 leN (Nsucc n) Nzero = empty
 leN (Nsucc n) (Nsucc m) = leN n m
 
-reflexive-leqN : (n : ℕ) → leqN n n
+_<_ = leN
+
+reflexive-leqN : (n : ℕ) → n ≤ n
 reflexive-leqN Nzero = star
 reflexive-leqN (Nsucc n) = reflexive-leqN n
 
-anti-reflexive-leN : (n : ℕ) → ¬ (leN n n)
+anti-reflexive-leN : (n : ℕ) → ¬ (n < n)
 anti-reflexive-leN Nzero = ind-empty
 anti-reflexive-leN (Nsucc n) = anti-reflexive-leN n
 
-transitive-leqN : (n m l : ℕ) → (leqN n m) → (leqN m l) → (leqN n l)
+transitive-leqN : (n m l : ℕ) → (n ≤ m) → (m ≤ l) → (n ≤ l)
 transitive-leqN Nzero Nzero Nzero p q = reflexive-leqN Nzero
 transitive-leqN Nzero Nzero (Nsucc l) p q = q
 transitive-leqN Nzero (Nsucc m) Nzero p q = star
@@ -217,7 +221,7 @@ succ-leN (Nsucc n) = succ-leN n
 -- Exercise 3.7
 -- With the construction of the divisibility relation we open the door to basic number theory.
 divides : (d n : ℕ) → U
-divides d n = Sigma ℕ (λ m → EqN (d ** m) n)
+divides d n = Σ ℕ (λ m → EqN (d ** m) n)
 
 -- Exercise 3.8
 -- In this exercise we were asked to construct observational equality on the booleans. This construction is analogous to, but simpler than, the construction of observational equality on the natural numbers.
@@ -351,19 +355,23 @@ leZ (inr (inr (Nsucc x))) (inr (inr Nzero)) = empty
 leZ (inr (inr (Nsucc x))) (inr (inr (Nsucc y))) =
   leZ (inr (inr x)) (inr (inr y))
 
-ind-Z-leqZ : (k : ℤ) {i : Level} (P : (l : ℤ) → (leqZ k l) → UU i) →
-  P k (reflexive-leqZ k) →
-  ((l : ℤ) (p : leqZ k l) → P l p → P (Zsucc l) (leqZ-succ-leqZ k l p)) →
-  (l : ℤ) (p : leqZ k l) → P l p
-ind-Z-leqZ (inl Nzero) P pk pS (inl Nzero) star = pk
-ind-Z-leqZ (inl Nzero) P pk pS (inl (Nsucc x)) ()
-ind-Z-leqZ (inl Nzero) P pk pS (inr (inl star)) star = pS (inl Nzero) star pk
-ind-Z-leqZ (inl Nzero) P pk pS (inr (inr Nzero)) star = pS (inr (inl star)) star (pS (inl Nzero) star pk)
-ind-Z-leqZ (inl Nzero) P pk pS (inr (inr (Nsucc x))) star = pS (inr (inr x)) star (ind-Z-leqZ (inl Nzero) P pk pS (inr (inr x)) star)
-ind-Z-leqZ (inl (Nsucc x)) P pk pS (inl Nzero) star = {!!}
-ind-Z-leqZ (inl (Nsucc x)) P pk pS (inl (Nsucc y)) p = {!!}
-ind-Z-leqZ (inl (Nsucc x)) P pk pS (inr y) p = {!!}
-ind-Z-leqZ (inr k) P pk pS l p = {!!}
+fam-shift-leqZ : (k : ℤ) {i : Level} (P : (l : ℤ) → leqZ k l → UU i) → (l : ℤ) → (leqZ (Zsucc k) l) → UU i
+fam-shift-leqZ k P l p = P l (transitive-leqZ k (Zsucc k) l (succ-leqZ k) p)
+
+-- ind-Z-leqZ : (k : ℤ) {i : Level} (P : (l : ℤ) → (leqZ k l) → UU i) →
+--   P k (reflexive-leqZ k) →
+--   ((l : ℤ) (p : leqZ k l) → P l p → P (Zsucc l) (leqZ-succ-leqZ k l p)) →
+--   (l : ℤ) (p : leqZ k l) → P l p
+-- ind-Z-leqZ (inl Nzero) P pk pS (inl Nzero) star = pk
+-- ind-Z-leqZ (inl Nzero) P pk pS (inl (Nsucc x)) ()
+-- ind-Z-leqZ (inl Nzero) P pk pS (inr (inl star)) star = pS (inl Nzero) star pk
+-- ind-Z-leqZ (inl Nzero) P pk pS (inr (inr Nzero)) star = pS (inr (inl star)) star (pS (inl Nzero) star pk)
+-- ind-Z-leqZ (inl Nzero) P pk pS (inr (inr (Nsucc x))) star = pS (inr (inr x)) star (ind-Z-leqZ (inl Nzero) P pk pS (inr (inr x)) star)
+-- ind-Z-leqZ (inl (Nsucc Nzero)) {i} P pk pS (inl Nzero) star = pS {!!} {!!} {!!}
+-- ind-Z-leqZ (inl (Nsucc (Nsucc x))) {i} P pk pS (inl Nzero) star = {!!}
+-- ind-Z-leqZ (inl (Nsucc x)) P pk pS (inl (Nsucc y)) p = {!!}
+-- ind-Z-leqZ (inl (Nsucc x)) P pk pS (inr y) p = {!!}
+-- ind-Z-leqZ (inr k) P pk pS l p = {!!}
 
 -- Exercise 3.11
 Zpred : ℤ → ℤ
