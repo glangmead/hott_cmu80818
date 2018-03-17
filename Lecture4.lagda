@@ -13,24 +13,24 @@ data Id {i : Level} {A : UU i} (x : A) : A → UU i where
 inv : {i : Level} {A : UU i} {x y : A} → Id x y → Id y x
 inv (refl) = refl
 
-concat : {i : Level} {A : UU i} {x y z : A} → Id x y → Id y z → Id x z
-concat refl q = q
+concat : {i : Level} {A : UU i} {x : A} (y : A) {z : A} → Id x y → Id y z → Id x z
+concat x refl q = q
 
-assoc : {i : Level} {A : UU i} {x y z w : A} (p : Id x y) (q : Id y z) (r : Id z w) → Id (concat p (concat q r)) (concat (concat p q) r)
+assoc : {i : Level} {A : UU i} {x y z w : A} (p : Id x y) (q : Id y z) (r : Id z w) → Id (concat _ p (concat _ q r)) (concat _ (concat _ p q) r)
 assoc refl q r = refl
 
-left-unit : {i : Level} {A : UU i} {x y : A} (p : Id x y) → Id (concat refl p) p
+left-unit : {i : Level} {A : UU i} {x y : A} (p : Id x y) → Id (concat _ refl p) p
 left-unit p = refl
 
-right-unit : {i : Level} {A : UU i} {x y : A} (p : Id x y) → Id (concat p refl) p
+right-unit : {i : Level} {A : UU i} {x y : A} (p : Id x y) → Id (concat _ p refl) p
 right-unit refl = refl
 
 left-inv : {i : Level} {A : UU i} {x y : A} (p : Id x y) →
-  Id (concat (inv p) p) refl
+  Id (concat _ (inv p) p) refl
 left-inv refl = refl
 
 right-inv : {i : Level} {A : UU i} {x y : A} (p : Id x y) →
-  Id (concat p (inv p)) refl
+  Id (concat _ p (inv p)) refl
 right-inv refl = refl
 
 ap : {i j : Level} {A : UU i} {B : UU j} (f : A → B) {x y : A} (p : Id x y) → Id (f x) (f y)
@@ -46,7 +46,7 @@ ap-refl : {i j : Level} {A : UU i} {B : UU j} (f : A → B) (x : A) →
   Id (ap f (refl {_} {_} {x})) refl
 ap-refl f x = refl
 
-ap-concat : {i j : Level} {A : UU i} {B : UU j} (f : A → B) {x y z : A} (p : Id x y) (q : Id y z) → Id (ap f (concat p q)) (concat (ap f p) (ap f q))
+ap-concat : {i j : Level} {A : UU i} {B : UU j} (f : A → B) {x y z : A} (p : Id x y) (q : Id y z) → Id (ap f (concat _ p q)) (concat _ (ap f p) (ap f q))
 ap-concat f refl q = refl
 
 ap-inv : {i j : Level} {A : UU i} {B : UU j} (f : A → B) {x y : A} (p : Id x y) → Id (ap f (inv p)) (inv (ap f p))

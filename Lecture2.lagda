@@ -49,9 +49,9 @@ const : {i j : Level} (A : UU i) (B : UU j) (b : B) → A → B
 const A B b x = b
 
 -- Exercise 2.4
-Pi_swap : {i j k : Level} {A : UU i} {B : UU j} {C : A → (B → UU k)} →
+Pi-swap : {i j k : Level} {A : UU i} {B : UU j} {C : A → (B → UU k)} →
   ((x : A) (y : B) → C x y) → ((y : B) (x : A) → C x y)
-Pi_swap f y x = f x y
+Pi-swap f y x = f x y
 
 -- Exercise 2.5(a)
 _**_ : ℕ → (ℕ → ℕ)
