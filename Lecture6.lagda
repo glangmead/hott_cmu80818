@@ -198,4 +198,21 @@ is-equiv-const-is-contr {i} {A} H = pair (dpair (ind-unit (center H)) (ind-unit 
 is-contr-is-equiv-const : {i : Level} {A : UU i} → is-equiv (const A unit star) → is-contr A
 is-contr-is-equiv-const (dpair (dpair g issec) (dpair h isretr)) = dpair (h star) isretr
 
+is-contr-is-equiv : {i j : Level} {A : UU i} {B : UU j} (f : A → B) → is-equiv f → is-contr B → is-contr A
+is-contr-is-equiv f Ef C =
+  is-contr-is-equiv-const
+    (is-equiv-comp (λ x → refl) Ef (is-equiv-const-is-contr C))
+
+is-contr-is-equiv' : {i j : Level} {A : UU i} {B : UU j} (f : A → B) → is-equiv f → is-contr A → is-contr B
+is-contr-is-equiv' f Ef C = is-contr-is-equiv (inv-is-equiv Ef) (is-equiv-inv-is-equiv Ef) C
+
+is-equiv-is-contr : {i j : Level} {A : UU i} {B : UU j} (f : A → B) →
+  is-contr A → is-contr B → is-equiv f
+is-equiv-is-contr {i} {j} {A} {B} f CA CB =
+  pair
+    (dpair
+      (const B A (center CA))
+      (sing-ind-is-contr B CB _ (inv (contraction CB (f (center CA))))))
+    (dpair (const B A (center CA)) (contraction CA)) 
+
 \end{code}

@@ -95,6 +95,10 @@ issec-inv-is-equiv E = pr1 (pr2 (is-invertible-is-equiv E))
 isretr-inv-is-equiv : {i j : Level} {A : UU i} {B : UU j} {f : A → B} → (E : is-equiv f) → ((inv-is-equiv E) ∘ f) ~ id
 isretr-inv-is-equiv E = pr2 (pr2 (is-invertible-is-equiv E))
 
+is-equiv-inv-is-equiv : {i j : Level} {A : UU i} {B : UU j} {f : A → B} → (E : is-equiv f) → is-equiv (inv-is-equiv E)
+is-equiv-inv-is-equiv {_} {_} {_} {_} {f} E =
+  pair (dpair f (isretr-inv-is-equiv E)) (dpair f (issec-inv-is-equiv E))
+
 is-equiv-id : {i : Level} (A : UU i) → is-equiv (id {_} {A})
 is-equiv-id A = pair (dpair id (htpy-refl id)) (dpair id (htpy-refl id))
 
