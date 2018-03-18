@@ -7,6 +7,8 @@ module Lecture6 where
 import Lecture5
 open Lecture5 public
 
+-- Section 6.1 Contractible types
+
 is-contr : {i : Level} → UU i → UU i
 is-contr A = Sigma A (λ a → (x : A) → Id a x)
 
@@ -38,5 +40,18 @@ is-sing {i} A a = (B : A → UU i) → sec (ev-pt A a B)
 
 is-contr-is-sing : {i : Level} (A : UU i) (a : A) → is-sing A a → is-contr A
 is-contr-is-sing A a S = dpair a (pr1 (S (λ y → Id a y)) refl)
+
+is-sing-unit : is-sing unit star
+is-sing-unit B = dpair ind-unit (λ b → refl)
+
+is-contr-unit : is-contr unit
+is-contr-unit = is-contr-is-sing unit star (is-sing-unit)
+
+is-sing-total-path : {i : Level} (A : UU i) (a : A) →
+  is-sing (Σ A (λ x → Id a x)) (dpair a refl)
+is-sing-total-path A a B = dpair (ind-Σ ∘ ind-Id) (λ b → refl)
+
+is-contr-total-path : {i : Level} (A : UU i) (a : A) → is-contr (Σ A (λ x → Id a x))
+is-contr-total-path A a = is-contr-is-sing _ _ (is-sing-total-path A a)
 
 \end{code}

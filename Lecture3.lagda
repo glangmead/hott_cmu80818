@@ -37,6 +37,10 @@ data Sigma {i j : Level} (A : UU i) (B : A → UU j) : UU (i ⊔ j) where
 
 Σ = Sigma
 
+ind-Σ : {i j k : Level} {A : UU i} {B : A → UU j} {C : Σ A B → UU k} →
+  ((x : A) (y : B x) → C (dpair x y)) → ((t : Σ A B) → C t)
+ind-Σ f (dpair x y) = f x y
+
 pr1 : {i j : Level} {A : UU i} {B : A → UU j} → Sigma A B → A
 pr1 (dpair a b) = a
 

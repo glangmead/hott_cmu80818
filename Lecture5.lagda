@@ -8,7 +8,7 @@ import Lecture4
 open Lecture4 public
 
 
--- Section 3.1 Homotopies
+-- Section 5.1 Homotopies
 _~_ : {i j : Level} {A : UU i} {B : A → UU j} (f g : (x : A) → B x) → UU (i ⊔ j)
 f ~ g = (x : _) → Id (f x) (g x)
 
@@ -42,7 +42,7 @@ left-whisk h H x = ap h (H x)
 right-whisk : {i j k : Level} {A : UU i} {B : UU j} {C : UU k} {g h : B → C} (H : g ~ h) (f : A → B) → ((g ∘ f) ~ (h ∘ f))
 right-whisk H f x = H (f x)
 
--- Section 3.2 Bi-invertible maps
+-- Section 5.2 Bi-invertible maps
 sec : {i j : Level} {A : UU i} {B : UU j} (f : A → B) → UU (i ⊔ j)
 sec {_} {_} {A} {B} f = Σ (B → A) (λ g → (f ∘ g) ~ id)
 
@@ -97,7 +97,7 @@ inv-Pi-swap C g x y = g y x
 eqv-swap : {i j k : Level} {A : UU i} {B : UU j} (C : A → B → UU k) → is-equiv (Pi-swap {_} {_} {_} {A} {B} {C})
 eqv-swap C = pair (dpair (inv-Pi-swap C) (htpy-refl id)) (dpair (inv-Pi-swap C) (htpy-refl id))
 
--- Section 3.3 The identity type of a Σ-type
+-- Section 5.3 The identity type of a Σ-type
 
 eq-pair' : {i j : Level} {A : UU i} {B : A → UU j} (s t : Σ A B) → (Σ (Id (pr1 s) (pr1 t)) (λ α → Id (tr B α (pr2 s)) (pr2 t))) → Id s t
 eq-pair' (dpair x y) (dpair x' y') (dpair refl refl) = refl
