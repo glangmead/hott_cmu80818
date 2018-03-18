@@ -188,4 +188,14 @@ is-contr-total-path' : {i : Level} (A : UU i) (a : A) →
   is-contr (Σ A (λ x → Id x a))
 is-contr-total-path' A a = is-contr-map-is-equiv (is-equiv-id _) a
 
+-- Exercises
+
+-- Exercise 6.3
+
+is-equiv-const-is-contr : {i : Level} {A : UU i} → is-contr A → is-equiv (const A unit star)
+is-equiv-const-is-contr {i} {A} H = pair (dpair (ind-unit (center H)) (ind-unit refl)) (dpair (const unit A (center H)) (contraction H))
+
+is-contr-is-equiv-const : {i : Level} {A : UU i} → is-equiv (const A unit star) → is-contr A
+is-contr-is-equiv-const (dpair (dpair g issec) (dpair h isretr)) = dpair (h star) isretr
+
 \end{code}

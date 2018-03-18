@@ -86,6 +86,15 @@ htpy-secf-retrf {_} {_} {_} {_} {f} (dpair (dpair g issec) (dpair h isretr)) =
 is-invertible-is-equiv : {i j : Level} {A : UU i} {B : UU j} {f : A → B} → is-equiv f → is-invertible f
 is-invertible-is-equiv {_} {_} {_} {_} {f} (dpair (dpair g issec) (dpair h isretr)) = dpair g (pair issec (htpy-concat (h ∘ f) (htpy-right-whisk (htpy-secf-retrf (dpair (dpair g issec) (dpair h isretr))) f) isretr))
 
+inv-is-equiv : {i j : Level} {A : UU i} {B : UU j} {f : A → B} → is-equiv f → B → A
+inv-is-equiv E = pr1 (is-invertible-is-equiv E)
+
+issec-inv-is-equiv : {i j : Level} {A : UU i} {B : UU j} {f : A → B} → (E : is-equiv f) → (f ∘ (inv-is-equiv E)) ~ id
+issec-inv-is-equiv E = pr1 (pr2 (is-invertible-is-equiv E))
+
+isretr-inv-is-equiv : {i j : Level} {A : UU i} {B : UU j} {f : A → B} → (E : is-equiv f) → ((inv-is-equiv E) ∘ f) ~ id
+isretr-inv-is-equiv E = pr2 (pr2 (is-invertible-is-equiv E))
+
 is-equiv-id : {i : Level} (A : UU i) → is-equiv (id {_} {A})
 is-equiv-id A = pair (dpair id (htpy-refl id)) (dpair id (htpy-refl id))
 
@@ -122,5 +131,28 @@ is-equiv-eq-pair' s t = pair (dpair (pair-eq' s t) (issec-pair-eq s t)) (dpair (
 
 is-equiv-eq-pair : {i j : Level} {A : UU i} {B : A → UU j} (s t : Σ A B) → is-equiv (eq-pair {i} {j} {A} {B} {s} {t})
 is-equiv-eq-pair = is-equiv-eq-pair'
+
+-- Exercises
+
+-- Exercise 5.4
+is-equiv-htpy : {i j : Level} {A : UU i} {B : UU j} {f g : A → B} →
+  f ~ g → is-equiv g → is-equiv f
+is-equiv-htpy H (dpair (dpair gs issec) (dpair gr isretr)) =
+  pair
+    (dpair gs (htpy-concat _ (htpy-right-whisk H gs) issec))
+    (dpair gr (htpy-concat (gr ∘ _) (htpy-left-whisk gr H) isretr))
+
+-- Exercise 5.5
+is-equiv-comp : {i j k : Level} {A : UU i} {B : UU j} {X : UU k} {f : A → X} {g : B → X} {h : A → B} (H : f ~ (g ∘ h)) → is-equiv h → is-equiv g → is-equiv f
+is-equiv-comp {i} {j} {k} {A} {B} {X} {f} {g} {h} H (dpair (dpair hs hs-issec) (dpair hr hr-isretr))
+  (dpair (dpair gs gs-issec) (dpair gr gr-isretr)) =
+  is-equiv-htpy H
+    (pair
+      (dpair (hs ∘ gs)
+        (htpy-concat (g ∘ gs)
+          (htpy-left-whisk g (htpy-right-whisk hs-issec gs)) gs-issec))
+      (dpair (hr ∘ gr)
+        (htpy-concat (hr ∘ h)
+          (htpy-left-whisk hr (htpy-right-whisk gr-isretr h)) hr-isretr)))
 
 \end{code}
