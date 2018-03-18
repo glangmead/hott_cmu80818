@@ -36,8 +36,10 @@ sing-comp-is-contr : {i j : Level} (A : UU i) (H : is-contr A) (B : A → UU j) 
 sing-comp-is-contr A H B b =
   ap (λ (ω : Id (center H) (center H)) → tr B ω b) (coh-contraction H)
 
-is-sing-is-contr : {i j : Level} (A : UU i) (H : is-contr A) (B : A → UU j) → sec (ev-pt A (center H) B)
-is-sing-is-contr A H B = dpair (sing-ind-is-contr A H B) (sing-comp-is-contr A H B)
+is-sing-is-contr : {i j : Level} (A : UU i) (H : is-contr A) (B : A → UU j) →
+  sec (ev-pt A (center H) B)
+is-sing-is-contr A H B =
+  dpair (sing-ind-is-contr A H B) (sing-comp-is-contr A H B)
 
 is-sing : {i : Level} (A : UU i) → A → UU (lsuc i)
 is-sing {i} A a = (B : A → UU i) → sec (ev-pt A a B)
@@ -68,7 +70,8 @@ fib f b = Σ _ (λ x → Id (f x) b)
 is-contr-map : {i j : Level} {A : UU i} {B : UU j} (f : A → B) → UU (i ⊔ j)
 is-contr-map f = (y : _) → is-contr (fib f y)
 
--- Our goal is to show that contractible maps are equivalences. First we construct the inverse of a contractible map.
+-- Our goal is to show that contractible maps are equivalences.
+-- First we construct the inverse of a contractible map.
 inv-is-contr-map : {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
   is-contr-map f → B → A
 inv-is-contr-map H y = pr1 (center (H y))
@@ -100,22 +103,28 @@ is-equiv-is-contr-map H =
 
 -- Section 6.3 Equivalences are contractible maps
 
-htpy-nat : {i j : Level} {A : UU i} {B : UU j} {f g : A → B} (H : f ~ g) {x y : A} (p : Id x y) → Id (concat _ (H x) (ap g p)) (concat _ (ap f p) (H y))
+htpy-nat : {i j : Level} {A : UU i} {B : UU j} {f g : A → B} (H : f ~ g)
+  {x y : A} (p : Id x y) →
+  Id (concat _ (H x) (ap g p)) (concat _ (ap f p) (H y))
 htpy-nat H refl = right-unit (H _)
 
 -- Should left-unwhisk and right-unwhisk be moved to Lecture 4? That's where they most naturally fit.
-left-unwhisk : {i : Level} {A : UU i} {x y z : A} (p : Id x y) {q r : Id y z} → Id (concat _ p q) (concat _ p r) → Id q r
+left-unwhisk : {i : Level} {A : UU i} {x y z : A} (p : Id x y) {q r : Id y z} →
+  Id (concat _ p q) (concat _ p r) → Id q r
 left-unwhisk refl s = concat _ (inv (left-unit _)) (concat _ s (left-unit _))
 
-right-unwhisk : {i : Level} {A : UU i} {x y z : A} {p q : Id x y} (r : Id y z) → Id (concat _ p r) (concat _ q r) → Id p q
+right-unwhisk : {i : Level} {A : UU i} {x y z : A} {p q : Id x y}
+  (r : Id y z) → Id (concat _ p r) (concat _ q r) → Id p q
 right-unwhisk refl s = concat _ (inv (right-unit _)) (concat _ s (right-unit _))
 
-htpy-red : {i : Level} {A : UU i} {f : A → A} (H : f ~ id) → (x : A) → Id (H (f x)) (ap f (H x))
+htpy-red : {i : Level} {A : UU i} {f : A → A} (H : f ~ id) →
+  (x : A) → Id (H (f x)) (ap f (H x))
 htpy-red {_} {A} {f} H x = right-unwhisk (H x)
   (concat (concat (f x) (H (f x)) (ap id (H x)))
     (ap (concat (f x) (H (f x))) (inv (ap-id (H x)))) (htpy-nat H (H x)))
 
-center-is-invertible : {i j : Level} {A : UU i} {B : UU j} {f : A → B} → is-invertible f → (y : B) → fib f y
+center-is-invertible : {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
+  is-invertible f → (y : B) → fib f y
 center-is-invertible {i} {j} {A} {B} {f}
   (dpair g (dpair issec isretr)) y =
     (dpair (g y)
@@ -123,24 +132,50 @@ center-is-invertible {i} {j} {A} {B} {f}
         (inv (ap (f ∘ g) (issec y)))
         (concat _ (ap f (isretr (g y))) (issec y))))
 
-mv-left : {i : Level} {A : UU i} {x y z : A} (p : Id x y) {q : Id y z} {r : Id x z} →
+mv-left : {i : Level} {A : UU i} {x y z : A}
+  (p : Id x y) {q : Id y z} {r : Id x z} →
   Id (concat _ p q) r → Id q (concat _ (inv p) r)
 mv-left refl s = s
 
-square : {i : Level} {A : UU i} {x y1 y2 z : A} (p1 : Id x y1) (q1 : Id y1 z) (p2 : Id x y2) (q2 : Id y2 z) → UU i
+square : {i : Level} {A : UU i} {x y1 y2 z : A}
+  (p1 : Id x y1) (q1 : Id y1 z) (p2 : Id x y2) (q2 : Id y2 z) → UU i
 square p q p' q' = Id (concat _ p q) (concat _ p' q')
 
-sq-left-whisk : {i : Level} {A : UU i} {x y1 y2 z : A} {p1 p1' : Id x y1} (s : Id p1 p1') {q1 : Id y1 z} {p2 : Id x y2} {q2 : Id y2 z} → square p1 q1 p2 q2 → square p1' q1 p2 q2
+sq-left-whisk : {i : Level} {A : UU i} {x y1 y2 z : A} {p1 p1' : Id x y1}
+  (s : Id p1 p1') {q1 : Id y1 z} {p2 : Id x y2} {q2 : Id y2 z} →
+  square p1 q1 p2 q2 → square p1' q1 p2 q2
 sq-left-whisk refl sq = sq
 
-sq-top-whisk : {i : Level} {A : UU i} {x y1 y2 z : A} {p1 : Id x y1} {q1 : Id y1 z} {p2 p2' : Id x y2} (s : Id p2 p2') {q2 : Id y2 z} → square p1 q1 p2 q2 → square p1 q1 p2' q2
+sq-top-whisk : {i : Level} {A : UU i} {x y1 y2 z : A}
+  {p1 : Id x y1} {q1 : Id y1 z}
+  {p2 p2' : Id x y2} (s : Id p2 p2') {q2 : Id y2 z} →
+  square p1 q1 p2 q2 → square p1 q1 p2' q2
 sq-top-whisk refl sq = sq
 
-contraction-is-invertible : {i j : Level} {A : UU i} {B : UU j} {f : A → B} → (I : is-invertible f) → (y : B) → (t : fib f y) → Id (center-is-invertible I y) t
-contraction-is-invertible {i} {j} {A} {B} {f} (dpair g (dpair issec isretr)) y (dpair x refl) =
-  eq-pair (dpair (isretr x) (concat _ (tr-fib (isretr x) (f x) (pr2 (center-is-invertible (dpair g (dpair issec isretr)) (f x))) ) (inv (mv-left (ap f (isretr x)) (concat _ (right-unit (ap f (isretr x))) (mv-left (ap (f ∘ g) (issec y))
-   (sq-left-whisk {_} {_} {f(g(f(g(f x))))} {f(g(f x))} {f(g(f x))} {f x} {issec (f(g(f x)))} {ap (f ∘ g) (issec (f x))} (htpy-red issec (f x)) {ap f (isretr x)} {ap f (isretr (g (f x)))} {issec (f x)}
-   (sq-top-whisk {_} {_} {f(g(f(g(f x))))} {f(g(f x))} {f(g(f x))} {f x} {issec (f(g(f x)))} {_} {_} {_} (concat _ (ap-comp f (g ∘ f) (isretr x)) (inv (ap (ap f) (htpy-red isretr x))))  (htpy-nat (htpy-right-whisk issec f) (isretr x))))))))))
+contraction-is-invertible : {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
+  (I : is-invertible f) → (y : B) → (t : fib f y) →
+  Id (center-is-invertible I y) t
+contraction-is-invertible {i} {j} {A} {B} {f}
+  (dpair g (dpair issec isretr)) y (dpair x refl) =
+  eq-pair (dpair
+    (isretr x)
+    (concat _
+      (tr-fib (isretr x) (f x)
+        (pr2 (center-is-invertible
+          (dpair g (dpair issec isretr))
+          (f x))))
+      (inv (mv-left (ap f (isretr x))
+        (concat _ (right-unit (ap f (isretr x)))
+        (mv-left (ap (f ∘ g) (issec y))
+        (sq-left-whisk {_} {_} {f(g(f(g(f x))))} {f(g(f x))} {f(g(f x))} {f x}
+          {issec (f(g(f x)))} {ap (f ∘ g) (issec (f x))}
+          (htpy-red issec (f x)) {ap f (isretr x)} {ap f (isretr (g (f x)))}
+          {issec (f x)}
+          (sq-top-whisk {_} {_} {f(g(f(g(f x))))} {f(g(f x))} {f(g(f x))} {f x}
+            {issec (f(g(f x)))} {_} {_} {_}
+            (concat _ (ap-comp f (g ∘ f) (isretr x))
+            (inv (ap (ap f) (htpy-red isretr x))))
+            (htpy-nat (htpy-right-whisk issec f) (isretr x))))))))))
 
 is-contr-map-is-invertible : {i j : Level} {A : UU i} {B : UU j} {f : A → B} → is-invertible f → is-contr-map f
 is-contr-map-is-invertible {i} {j} {A} {B} {f} I y =
