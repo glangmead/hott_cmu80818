@@ -56,14 +56,16 @@ canonical : {i j : Level} {A : UU i} {B : A → UU j} (a : A) (b : B a) →
   {x : A} → Id a x → B x
 canonical a b refl = b
 
+id-fundamental-gen : {i j : Level} {A : UU i} {B : A → UU j} (a : A) (b : B a) → is-contr (Σ A B) → (f : (x : A) → Id a x → B x) → (x : A) → is-equiv (f x)
+id-fundamental-gen {_} {_} {A} {B} a b C f x =
+  is-equiv-ftr-is-equiv-tot {_} {_} {_} {A} {λ y → Id a y} {B} (f _)
+    (is-equiv-is-contr _ (is-contr-total-path A a) C) x
+  
 id-fundamental : {i j : Level} {A : UU i} {B : A → UU j} (a : A) (b : B a) →
   is-contr (Σ A B) →
-  (x : A) → is-equiv (canonical {i} {j} {A} {B} a b {x})
-id-fundamental {i} {j} {A} {B} a b H x =
-  is-equiv-ftr-is-equiv-tot {i} {i} {j} {A} {λ x₁ → Id a x₁} {B}
-    (canonical {i} {j} {A} {B} a b)
-    (is-equiv-is-contr _ (is-contr-total-path A a) H)
-    x
+  (x : A) → is-equiv (ind-Id {i} {j} {A} {a} {λ x p → B x} b x)
+id-fundamental {i} {j} {A} {B} a b H =
+  id-fundamental-gen a b H (ind-Id {_} {_} {A} {a} {λ x p → B x} b)
 
 id-fundamental' : {i j : Level} {A : UU i} {B : A → UU j} (a : A) (b : B a) →
   ((x : A) → is-equiv (canonical {i} {j} {A} {B} a b {x})) → is-contr (Σ A B)
@@ -72,5 +74,17 @@ id-fundamental' {i} {j} {A} {B} a b H =
     (tot (canonical {i} {j} {A} {B} a b))
     (is-equiv-tot-is-equiv-ftr _ H)
     (is-contr-total-path A a)
+
+is-emb : {i j : Level} {A : UU i} {B : UU j} (f : A → B) → UU (i ⊔ j)
+is-emb f = (x y : _) → is-equiv (ap f {x} {y})
+
+is-emb-is-equiv : {i j : Level} {A : UU i} {B : UU j} (f : A → B) → is-equiv f → is-emb f
+is-emb-is-equiv {i} {j} {A} {B} f E x =
+  id-fundamental-gen x refl
+    (is-contr-is-equiv' (tot (λ {y} (p : Id (f y) (f x)) → inv p))
+        (is-equiv-tot-is-equiv-ftr _ (λ y → is-equiv-inv (f y) (f x)))
+      (is-contr-map-is-equiv E (f x)))
+    (λ y p → ap f p)
+
 
 \end{code}

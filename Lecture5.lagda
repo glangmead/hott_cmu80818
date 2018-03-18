@@ -138,6 +138,14 @@ is-equiv-eq-pair = is-equiv-eq-pair'
 
 -- Exercises
 
+-- Exercise 5.3
+inv-inv : {i : Level} {A : UU i} {x y : A} (p : Id x y) → Id (inv (inv p)) p
+inv-inv refl = refl
+
+is-equiv-inv : {i : Level} {A : UU i} (x y : A) →
+  is-equiv (λ (p : Id x y) → inv p)
+is-equiv-inv x y = pair (dpair inv inv-inv) (dpair inv inv-inv)
+
 -- Exercise 5.4
 is-equiv-htpy : {i j : Level} {A : UU i} {B : UU j} {f g : A → B} →
   f ~ g → is-equiv g → is-equiv f
