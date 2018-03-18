@@ -10,9 +10,9 @@ open Lecture3 public
 data Id {i : Level} {A : UU i} (x : A) : A → UU i where
   refl : Id x x
 
-ind-Id : {i j : Level} {A : UU i} {x : A} {B : (y : A) (p : Id x y) → UU j} →
+ind-Id : {i j : Level} {A : UU i} {x : A} (B : (y : A) (p : Id x y) → UU j) →
   (B x refl) → (y : A) (p : Id x y) → B y p
-ind-Id b y refl = b
+ind-Id x b y refl = b
 
 inv : {i : Level} {A : UU i} {x y : A} → Id x y → Id y x
 inv (refl) = refl

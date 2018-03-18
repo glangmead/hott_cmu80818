@@ -63,9 +63,9 @@ id-fundamental-gen {_} {_} {A} {B} a b C f x =
   
 id-fundamental : {i j : Level} {A : UU i} {B : A → UU j} (a : A) (b : B a) →
   is-contr (Σ A B) →
-  (x : A) → is-equiv (ind-Id {i} {j} {A} {a} {λ x p → B x} b x)
+  (x : A) → is-equiv (ind-Id (λ x p → B x) b x)
 id-fundamental {i} {j} {A} {B} a b H =
-  id-fundamental-gen a b H (ind-Id {_} {_} {A} {a} {λ x p → B x} b)
+  id-fundamental-gen a b H (ind-Id (λ x p → B x) b)
 
 id-fundamental' : {i j : Level} {A : UU i} {B : A → UU j} (a : A) (b : B a) →
   ((x : A) → is-equiv (canonical {i} {j} {A} {B} a b {x})) → is-contr (Σ A B)

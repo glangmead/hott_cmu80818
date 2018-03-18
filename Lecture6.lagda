@@ -56,7 +56,7 @@ is-contr-unit = is-contr-is-sing unit star (is-sing-unit)
 
 is-sing-total-path : {i : Level} (A : UU i) (a : A) →
   is-sing (Σ A (λ x → Id a x)) (dpair a refl)
-is-sing-total-path A a B = dpair (ind-Σ ∘ ind-Id) (λ b → refl)
+is-sing-total-path A a B = dpair (ind-Σ ∘ (ind-Id _)) (λ b → refl)
 
 is-contr-total-path : {i : Level} (A : UU i) (a : A) →
   is-contr (Σ A (λ x → Id a x))
@@ -189,6 +189,18 @@ is-contr-total-path' : {i : Level} (A : UU i) (a : A) →
 is-contr-total-path' A a = is-contr-map-is-equiv (is-equiv-id _) a
 
 -- Exercises
+
+-- Exercise 6.1
+is-prop-is-contr : {i : Level} {A : UU i} → is-contr A → (x y : A) → is-contr (Id x y)
+is-prop-is-contr {i} {A} C =
+  sing-ind-is-contr A C
+    (λ x → ((y : A) → is-contr (Id x y)))
+    (λ y → dpair
+           (contraction C y)
+           (ind-Id
+             (λ z (p : Id (center C) z) → Id (contraction C z) p)
+             (coh-contraction C)
+             y))
 
 -- Exercise 6.3
 
