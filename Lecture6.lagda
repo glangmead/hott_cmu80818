@@ -202,6 +202,13 @@ is-prop-is-contr {i} {A} C =
              (coh-contraction C)
              y))
 
+-- Exercise 6.2
+is-contr-retract-of : {i j : Level} {A : UU i} (B : UU j) → A retract-of B → is-contr B → is-contr A
+is-contr-retract-of B (dpair i (dpair r isretr)) C =
+  dpair
+    (r (center C))
+    (λ x → concat (r (i x)) (ap r (contraction C (i x))) (isretr x))
+
 -- Exercise 6.3
 
 is-equiv-const-is-contr : {i : Level} {A : UU i} → is-contr A → is-equiv (const A unit star)

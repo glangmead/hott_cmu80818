@@ -49,6 +49,9 @@ sec {_} {_} {A} {B} f = Σ (B → A) (λ g → (f ∘ g) ~ id)
 retr : {i j : Level} {A : UU i} {B : UU j} (f : A → B) → UU (i ⊔ j)
 retr {_} {_} {A} {B} f = Σ (B → A) (λ g → (g ∘ f) ~ id)
 
+_retract-of_ : {i j : Level} → UU i → UU j → UU (i ⊔ j)
+A retract-of B = Σ (A → B) retr
+
 is-equiv : {i j : Level} {A : UU i} {B : UU j} (f : A → B) → UU (i ⊔ j)
 is-equiv f = sec f × retr f
 

@@ -40,4 +40,21 @@ is-subtype B = (x : _) → is-prop (B x)
 
 -- Section 8.2 Sets
 
+is-set : {i : Level} → UU i → UU i
+is-set A = (x y : A) → is-prop (Id x y)
+
+axiom-K : {i : Level} → UU i → UU i
+axiom-K A = (x : A) (p : Id x x) → Id refl p
+
+is-set-axiom-K : {i : Level} (A : UU i) → axiom-K A → is-set A
+is-set-axiom-K A H x y =
+  is-prop-is-prop' (ind-Id (λ z p → (q : Id x z) → Id p q) (H x) y)
+
+axiom-K-is-set : {i : Level} (A : UU i) → is-set A → axiom-K A
+axiom-K-is-set A H x p =
+  concat
+    (center (is-contr-is-prop-inh (H x x) refl))
+      (inv (contraction (is-contr-is-prop-inh (H x x) refl) refl))
+      (contraction (is-contr-is-prop-inh (H x x) refl) p)
+
 \end{code}
