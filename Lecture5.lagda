@@ -102,8 +102,14 @@ eqv-swap C = pair (dpair (inv-Pi-swap C) (htpy-refl id)) (dpair (inv-Pi-swap C) 
 eq-pair' : {i j : Level} {A : UU i} {B : A → UU j} (s t : Σ A B) → (Σ (Id (pr1 s) (pr1 t)) (λ α → Id (tr B α (pr2 s)) (pr2 t))) → Id s t
 eq-pair' (dpair x y) (dpair x' y') (dpair refl refl) = refl
 
+eq-pair : {i j : Level} {A : UU i} {B : A → UU j} {s t : Σ A B} → (Σ (Id (pr1 s) (pr1 t)) (λ α → Id (tr B α (pr2 s)) (pr2 t))) → Id s t
+eq-pair {i} {j} {A} {B} {s} {t} = eq-pair' s t
+
 pair-eq' : {i j : Level} {A : UU i} {B : A → UU j} (s t : Σ A B) → (Id s t) → Σ (Id (pr1 s) (pr1 t)) (λ α → Id (tr B α (pr2 s)) (pr2 t))
 pair-eq' s t refl = dpair refl refl
+
+pair-eq  : {i j : Level} {A : UU i} {B : A → UU j} {s t : Σ A B} → (Id s t) → Σ (Id (pr1 s) (pr1 t)) (λ α → Id (tr B α (pr2 s)) (pr2 t))
+pair-eq {i} {j} {A} {B} {s} {t} = pair-eq' s t
 
 isretr-pair-eq : {i j : Level} {A : UU i} {B : A → UU j} (s t : Σ A B) → (((pair-eq' s t) ∘ (eq-pair' s t)) ~ id)
 isretr-pair-eq (dpair x y) (dpair x' y') (dpair refl refl) = refl
@@ -111,7 +117,10 @@ isretr-pair-eq (dpair x y) (dpair x' y') (dpair refl refl) = refl
 issec-pair-eq : {i j : Level} {A : UU i} {B : A → UU j} (s t : Σ A B) → (((eq-pair' s t) ∘ (pair-eq' s t)) ~ id)
 issec-pair-eq (dpair x y) .(dpair x y) refl = refl
 
-is-equiv-eq-pair : {i j : Level} {A : UU i} {B : A → UU j} (s t : Σ A B) → is-equiv (eq-pair' s t)
-is-equiv-eq-pair s t = pair (dpair (pair-eq' s t) (issec-pair-eq s t)) (dpair (pair-eq' s t) (isretr-pair-eq s t))
+is-equiv-eq-pair' : {i j : Level} {A : UU i} {B : A → UU j} (s t : Σ A B) → is-equiv (eq-pair' s t)
+is-equiv-eq-pair' s t = pair (dpair (pair-eq' s t) (issec-pair-eq s t)) (dpair (pair-eq' s t) (isretr-pair-eq s t))
+
+is-equiv-eq-pair : {i j : Level} {A : UU i} {B : A → UU j} (s t : Σ A B) → is-equiv (eq-pair {i} {j} {A} {B} {s} {t})
+is-equiv-eq-pair = is-equiv-eq-pair'
 
 \end{code}
