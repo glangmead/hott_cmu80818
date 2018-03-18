@@ -62,4 +62,9 @@ tr B refl b = b
 apd : {i j : Level} {A : UU i} {B : A → UU j} (f : (x : A) → B x) {x y : A} (p : Id x y) → Id (tr B p (f x)) (f y)
 apd f refl = refl
 
+-- Exercise 4.4 (I needed this part already in Lecture 6)
+tr-fib : {i j : Level} {A : UU i} {B : UU j} {f : A → B} {x y : A} (p : Id x y) (b : B) →
+  (q : Id (f x) b) → Id (tr (λ (a : A) → Id (f a) b) p q) (concat _ (inv (ap f p)) q)
+tr-fib refl b q = refl
+
 \end{code}

@@ -36,11 +36,11 @@ htpy-left-inv H x = left-inv (H x)
 htpy-right-inv : {i j : Level} {A : UU i} {B : A → UU j} {f g : (x : A) → B x} (H : f ~ g) → htpy-concat _ H (htpy-inv H) ~ htpy-refl f
 htpy-right-inv H x = right-inv (H x)
 
-left-whisk : {i j k : Level} {A : UU i} {B : UU j} {C : UU k} (h : B → C) {f g : A → B} → (f ~ g) → ((h ∘ f) ~ (h ∘ g))
-left-whisk h H x = ap h (H x)
+htpy-left-whisk : {i j k : Level} {A : UU i} {B : UU j} {C : UU k} (h : B → C) {f g : A → B} → (f ~ g) → ((h ∘ f) ~ (h ∘ g))
+htpy-left-whisk h H x = ap h (H x)
 
-right-whisk : {i j k : Level} {A : UU i} {B : UU j} {C : UU k} {g h : B → C} (H : g ~ h) (f : A → B) → ((g ∘ f) ~ (h ∘ f))
-right-whisk H f x = H (f x)
+htpy-right-whisk : {i j k : Level} {A : UU i} {B : UU j} {C : UU k} {g h : B → C} (H : g ~ h) (f : A → B) → ((g ∘ f) ~ (h ∘ f))
+htpy-right-whisk H f x = H (f x)
 
 -- Section 5.2 Bi-invertible maps
 sec : {i j : Level} {A : UU i} {B : UU j} (f : A → B) → UU (i ⊔ j)
@@ -81,21 +81,21 @@ is-equiv-is-invertible (dpair g (dpair H K)) = pair (dpair g H) (dpair g K)
 
 htpy-secf-retrf : {i j : Level} {A : UU i} {B : UU j} {f : A → B} (e : is-equiv f) → (eqv-secf e ~ eqv-retrf e)
 htpy-secf-retrf {_} {_} {_} {_} {f} (dpair (dpair g issec) (dpair h isretr)) =
-  htpy-concat (h ∘ (f ∘ g)) (htpy-inv (right-whisk isretr g)) (left-whisk h issec)
+  htpy-concat (h ∘ (f ∘ g)) (htpy-inv (htpy-right-whisk isretr g)) (htpy-left-whisk h issec)
 
 is-invertible-is-equiv : {i j : Level} {A : UU i} {B : UU j} {f : A → B} → is-equiv f → is-invertible f
-is-invertible-is-equiv {_} {_} {_} {_} {f} (dpair (dpair g issec) (dpair h isretr)) = dpair g (pair issec (htpy-concat (h ∘ f) (right-whisk (htpy-secf-retrf (dpair (dpair g issec) (dpair h isretr))) f) isretr))
+is-invertible-is-equiv {_} {_} {_} {_} {f} (dpair (dpair g issec) (dpair h isretr)) = dpair g (pair issec (htpy-concat (h ∘ f) (htpy-right-whisk (htpy-secf-retrf (dpair (dpair g issec) (dpair h isretr))) f) isretr))
 
-eqv-id : {i : Level} (A : UU i) → is-equiv (id {_} {A})
-eqv-id A = pair (dpair id (htpy-refl id)) (dpair id (htpy-refl id))
+is-equiv-id : {i : Level} (A : UU i) → is-equiv (id {_} {A})
+is-equiv-id A = pair (dpair id (htpy-refl id)) (dpair id (htpy-refl id))
 
 
 inv-Pi-swap : {i j k : Level} {A : UU i} {B : UU j} (C : A → B → UU k) →
   ((y : B) (x : A) → C x y) → ((x : A) (y : B) → C x y)
 inv-Pi-swap C g x y = g y x
 
-eqv-swap : {i j k : Level} {A : UU i} {B : UU j} (C : A → B → UU k) → is-equiv (Pi-swap {_} {_} {_} {A} {B} {C})
-eqv-swap C = pair (dpair (inv-Pi-swap C) (htpy-refl id)) (dpair (inv-Pi-swap C) (htpy-refl id))
+is-equiv-swap : {i j k : Level} {A : UU i} {B : UU j} (C : A → B → UU k) → is-equiv (Pi-swap {_} {_} {_} {A} {B} {C})
+is-equiv-swap C = pair (dpair (inv-Pi-swap C) (htpy-refl id)) (dpair (inv-Pi-swap C) (htpy-refl id))
 
 -- Section 5.3 The identity type of a Σ-type
 
