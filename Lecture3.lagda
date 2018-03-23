@@ -9,7 +9,7 @@ open Lecture2 public
 
 data unit : U where
   star : unit
-  
+
 𝟙 = unit
 
 ind-unit : {i : Level} {P : unit → UU i} → P star → ((x : unit) → P x)
@@ -46,6 +46,9 @@ pr1 (dpair a b) = a
 
 pr2 : {i j : Level} {A : UU i} {B : A → UU j} → (t : Sigma A B) → B (pr1 t)
 pr2 (dpair a b) = b
+
+weaken : {i j : Level} (A : UU i) (B : UU j) → (A → UU j)
+weaken A B = λ a → B
 
 prod : {i j : Level} (A : UU i) (B : UU j) → UU (i ⊔ j)
 prod A B = Sigma A (λ a → B)
@@ -122,7 +125,7 @@ Zsucc (inr (inr x)) = inr (inr (Nsucc x))
 -- In this exercise we were asked to show that (A + ¬A) implies (¬¬A → A).
 -- In other words, we get double negation elimination for the types that are decidable
 dne-dec : {i : Level} (A : UU i) → (coprod A (¬ A)) → (¬ (¬ A) → A)
-dne-dec A (inl x) = λ t → x
+dne-dec A (inl x) = λ f → x
 dne-dec A (inr x) = λ f → ind-empty (f x)
 
 -- Exercise 3.3
@@ -174,7 +177,7 @@ preserve_EqN f =
 -- Exercise 3.6
 -- In this exercise we were asked to construct the relations ≤ and < on the natural numbers, and show basic properties about them.
 
--- Definition of ≤ 
+-- Definition of ≤
 leqN : ℕ → ℕ → U
 leqN Nzero Nzero = unit
 leqN Nzero (Nsucc m) = unit

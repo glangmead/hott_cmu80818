@@ -35,7 +35,7 @@ add0 n = n
 addS : ℕ → (ℕ → ℕ) → (ℕ → ℕ)
 addS n f m = Nsucc (f m)
 add : ℕ → ℕ → ℕ
-add = ind-N add0 addS
+add = λ n → ind-N add0 addS n
 
 -- try some examples, hit C-c C-n (or whatever "compute normal form" is bound to)
 -- and try entering "add (Nsucc Nzero) (Nsucc (Nsucc Nzero))"
