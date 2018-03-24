@@ -112,30 +112,23 @@ nat-left-add-identity Nzero = refl
 nat-left-add-identity (Nsucc m) = ap Nsucc (nat-left-add-identity m)
 
 nat-add-is-assoc : (m n k : ℕ) → Id (m + (n + k)) ((m + n) + k)
-nat-add-is-assoc Nzero Nzero Nzero = refl
-nat-add-is-assoc Nzero Nzero (Nsucc k) = refl
-nat-add-is-assoc Nzero (Nsucc n) Nzero = refl
-nat-add-is-assoc Nzero (Nsucc n) (Nsucc k) = refl
-nat-add-is-assoc (Nsucc m) Nzero Nzero = ap Nsucc (nat-add-is-assoc m Nzero Nzero)
-nat-add-is-assoc (Nsucc m) Nzero (Nsucc k) = ap Nsucc (nat-add-is-assoc m Nzero (Nsucc k))
-nat-add-is-assoc (Nsucc m) (Nsucc n) Nzero = ap Nsucc (nat-add-is-assoc m (Nsucc n) Nzero)
-nat-add-is-assoc (Nsucc m) (Nsucc n) (Nsucc k) = ap Nsucc (nat-add-is-assoc m (Nsucc n) (Nsucc k))
+nat-add-is-assoc Nzero n k = refl
+nat-add-is-assoc (Nsucc m) n k = ap Nsucc (nat-add-is-assoc m n k) 
 
 nat-com-simple : (m n : ℕ) → Id (m + (Nsucc n)) (Nsucc (m + n))
-nat-com-simple Nzero Nzero = refl
-nat-com-simple Nzero (Nsucc n) = refl
-nat-com-simple (Nsucc m) Nzero = ap Nsucc (nat-com-simple m Nzero )
-nat-com-simple (Nsucc m) (Nsucc n) = ap Nsucc (nat-com-simple m (Nsucc n))
+nat-com-simple Nzero n = refl
+nat-com-simple (Nsucc m) n = ap Nsucc (nat-com-simple m n)
 
 nat-add-com : (m n : ℕ) → Id (m + n) (n + m)
 nat-add-com Nzero Nzero = refl
 nat-add-com Nzero (Nsucc n) = ap Nsucc (nat-add-com Nzero n)
 nat-add-com (Nsucc m) Nzero = ap Nsucc (nat-add-com m Nzero)
-nat-add-com (Nsucc m) (Nsucc n) = (ap Nsucc (nat-add-com m (Nsucc n))) · (inv (nat-com-simple (Nsucc n) m))
+nat-add-com (Nsucc m) (Nsucc n) =
+  (ap Nsucc (nat-add-com m (Nsucc n))) · (inv (nat-com-simple (Nsucc n) m))
 
--- nat-right-mult-zero : (m : ℕ) → Id (m ** Nzero) Nzero
--- nat-right-mult-zero Nzero = refl
--- nat-right-mult-zero (Nsucc m) = ap Nsucc (nat-add-com m)
+nat-right-mult-zero : (m : ℕ) → Id (m ** Nzero) Nzero
+nat-right-mult-zero Nzero = refl
+nat-right-mult-zero (Nsucc m) = concat (m ** Nzero) (nat-right-add-identity _) (nat-right-mult-zero m)
 
 -- nat-mult-is-assoc : (m n k : ℕ) → Id (m ** (n ** k)) ((m ** n) ** k)
 -- nat-mult-is-assoc Nzero Nzero Nzero = refl
