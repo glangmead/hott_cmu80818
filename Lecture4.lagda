@@ -121,16 +121,30 @@ nat-add-is-assoc (Nsucc m) Nzero (Nsucc k) = ap Nsucc (nat-add-is-assoc m Nzero 
 nat-add-is-assoc (Nsucc m) (Nsucc n) Nzero = ap Nsucc (nat-add-is-assoc m (Nsucc n) Nzero)
 nat-add-is-assoc (Nsucc m) (Nsucc n) (Nsucc k) = ap Nsucc (nat-add-is-assoc m (Nsucc n) (Nsucc k))
 
--- nat-add-com : (m n : ℕ) → Id (m + n) (n + m)
--- nat-add-com Nzero Nzero = refl
--- nat-add-com Nzero (Nsucc n) = ap Nsucc (nat-add-com Nzero n)
--- nat-add-com (Nsucc m) Nzero = ap Nsucc (nat-add-com m Nzero)
+nat-com-simple : (m n : ℕ) → Id (m + (Nsucc n)) (Nsucc (m + n))
+nat-com-simple Nzero Nzero = refl
+nat-com-simple Nzero (Nsucc n) = refl
+nat-com-simple (Nsucc m) Nzero = ap Nsucc (nat-com-simple m Nzero )
+nat-com-simple (Nsucc m) (Nsucc n) = ap Nsucc (nat-com-simple m (Nsucc n))
+
+nat-add-com : (m n : ℕ) → Id (m + n) (n + m)
+nat-add-com Nzero Nzero = refl
+nat-add-com Nzero (Nsucc n) = ap Nsucc (nat-add-com Nzero n)
+nat-add-com (Nsucc m) Nzero = ap Nsucc (nat-add-com m Nzero)
+nat-add-com (Nsucc m) (Nsucc n) = (ap Nsucc (nat-add-com m (Nsucc n))) · (inv (nat-com-simple (Nsucc n) m))
+
+-- nat-right-mult-zero : (m : ℕ) → Id (m ** Nzero) Nzero
+-- nat-right-mult-zero Nzero = refl
+-- nat-right-mult-zero (Nsucc m) = ap Nsucc (nat-add-com m)
 
 -- nat-mult-is-assoc : (m n k : ℕ) → Id (m ** (n ** k)) ((m ** n) ** k)
 -- nat-mult-is-assoc Nzero Nzero Nzero = refl
 -- nat-mult-is-assoc Nzero Nzero (Nsucc k) = refl
 -- nat-mult-is-assoc Nzero (Nsucc n) Nzero = refl
 -- nat-mult-is-assoc Nzero (Nsucc n) (Nsucc k) = refl
+-- nat-mult-is-assoc (Nsucc m) Nzero Nzero = refl
+-- nat-mult-is-assoc (Nsucc m) Nzero (Nsucc k) = refl
+-- nat-mult-is-assoc (Nsucc m) (Nsucc n) Nzero = refl
 -- nat-mult-is-assoc (Nsucc m) Nzero Nzero = refl
 
 N1 = Nsucc Nzero
