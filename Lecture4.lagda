@@ -103,32 +103,31 @@ lift : {i j : Level} {A : UU i} {B : A → UU j} {x y : A} (p : Id x y) (b : B x
 lift refl b = refl
 
 -- Exercise 4.7 Some laws of arithmetic (follow-up from Remark 2.3.1)
-nat-right-add-identity : (m : ℕ) → Id (m + Nzero) m
-nat-right-add-identity Nzero = refl
-nat-right-add-identity (Nsucc m) = ap Nsucc (nat-right-add-identity m)
+right-unit-addN : (m : ℕ) → Id (m + Nzero) m
+right-unit-addN Nzero = refl
+right-unit-addN (Nsucc m) = ap Nsucc (right-unit-addN m)
 
-nat-left-add-identity : (m : ℕ) → Id (Nzero + m) m
-nat-left-add-identity Nzero = refl
-nat-left-add-identity (Nsucc m) = ap Nsucc (nat-left-add-identity m)
+left-unit-addN : (m : ℕ) → Id (Nzero + m) m
+left-unit-addN m = refl
 
-nat-add-is-assoc : (m n k : ℕ) → Id (m + (n + k)) ((m + n) + k)
-nat-add-is-assoc Nzero n k = refl
-nat-add-is-assoc (Nsucc m) n k = ap Nsucc (nat-add-is-assoc m n k) 
+assoc-addN : (m n k : ℕ) → Id (m + (n + k)) ((m + n) + k)
+assoc-addN Nzero n k = refl
+assoc-addN (Nsucc m) n k = ap Nsucc (assoc-addN m n k) 
 
-nat-com-simple : (m n : ℕ) → Id (m + (Nsucc n)) (Nsucc (m + n))
-nat-com-simple Nzero n = refl
-nat-com-simple (Nsucc m) n = ap Nsucc (nat-com-simple m n)
+right-succ-addN : (m n : ℕ) → Id (m + (Nsucc n)) (Nsucc (m + n))
+right-succ-addN Nzero n = refl
+right-succ-addN (Nsucc m) n = ap Nsucc (right-succ-addN m n)
 
-nat-add-com : (m n : ℕ) → Id (m + n) (n + m)
-nat-add-com Nzero Nzero = refl
-nat-add-com Nzero (Nsucc n) = ap Nsucc (nat-add-com Nzero n)
-nat-add-com (Nsucc m) Nzero = ap Nsucc (nat-add-com m Nzero)
-nat-add-com (Nsucc m) (Nsucc n) =
-  (ap Nsucc (nat-add-com m (Nsucc n))) · (inv (nat-com-simple (Nsucc n) m))
+comm-addN : (m n : ℕ) → Id (m + n) (n + m)
+comm-addN Nzero Nzero = refl
+comm-addN Nzero (Nsucc n) = ap Nsucc (comm-addN Nzero n)
+comm-addN (Nsucc m) Nzero = ap Nsucc (comm-addN m Nzero)
+comm-addN (Nsucc m) (Nsucc n) =
+  (ap Nsucc (comm-addN m (Nsucc n))) · (inv (right-succ-addN (Nsucc n) m))
 
-nat-right-mult-zero : (m : ℕ) → Id (m ** Nzero) Nzero
-nat-right-mult-zero Nzero = refl
-nat-right-mult-zero (Nsucc m) = concat (m ** Nzero) (nat-right-add-identity _) (nat-right-mult-zero m)
+right-zero-mulN : (m : ℕ) → Id (m ** Nzero) Nzero
+right-zero-mulN Nzero = refl
+right-zero-mulN (Nsucc m) = concat (m ** Nzero) (right-unit-addN _) (right-zero-mulN m)
 
 -- nat-mult-is-assoc : (m n k : ℕ) → Id (m ** (n ** k)) ((m ** n) ** k)
 -- nat-mult-is-assoc Nzero Nzero Nzero = refl
