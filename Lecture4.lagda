@@ -139,10 +139,34 @@ right-unit-mulN : (m : ℕ) → Id (m ** (Nsucc Nzero)) m
 right-unit-mulN Nzero = refl
 right-unit-mulN (Nsucc m) =
   concat (Nsucc (m ** (Nsucc Nzero)))
-    (concat ((m ** Nsucc Nzero) + Nsucc Nzero)
-      refl
-      (comm-addN _ (Nsucc Nzero)))
+    (comm-addN _ (Nsucc Nzero))
     (ap Nsucc (right-unit-mulN m))
+
+distr-addN-mulN : (m n k : ℕ) → Id ((m + n) ** k) ((m  ** k) + (n ** k))
+distr-addN-mulN Nzero n k = refl
+distr-addN-mulN (Nsucc m) n k =
+  concat
+    (((m ** k) + (n ** k)) + k)
+    (ap (λ x → x + k) (distr-addN-mulN m n k))
+    (concat
+      ((m ** k) + ((n ** k) + k))
+      (inv (assoc-addN (m ** k) (n ** k) k))
+      (concat ((m ** k) + (k + (n ** k)))
+        (ap (λ x → (m ** k) + x)
+        (comm-addN (n ** k) k))
+        (concat
+          (((m ** k) + k) + (n ** k))
+          (assoc-addN (m ** k) k (n ** k))
+          refl)))
+
+assoc-mulN : (m n k : ℕ) → Id (m ** (n ** k)) ((m ** n) ** k)
+assoc-mulN Nzero n k = refl
+assoc-mulN (Nsucc m) n k =
+  concat ((m ** (n ** k)) + (n ** k))
+  refl
+  (concat (((m ** n) ** k) + (n ** k))
+    (ap (λ x → x + (n ** k)) (assoc-mulN m n k))
+    ({!!}))
 
 -- nat-mult-is-assoc : (m n k : ℕ) → Id (m ** (n ** k)) ((m ** n) ** k)
 -- nat-mult-is-assoc Nzero Nzero Nzero = refl
