@@ -129,6 +129,18 @@ right-zero-mulN : (m : ℕ) → Id (m ** Nzero) Nzero
 right-zero-mulN Nzero = refl
 right-zero-mulN (Nsucc m) = concat (m ** Nzero) (right-unit-addN _) (right-zero-mulN m)
 
+left-zero-mulN : (m : ℕ) → Id (Nzero ** m) Nzero
+left-zero-mulN m = refl
+
+right-unit-mulN : (m : ℕ) → Id (m ** (Nsucc Nzero)) m
+right-unit-mulN Nzero = refl
+right-unit-mulN (Nsucc m) =
+  concat (Nsucc (m ** (Nsucc Nzero)))
+    (concat ((m ** Nsucc Nzero) + Nsucc Nzero)
+      refl
+      (comm-addN _ (Nsucc Nzero)))
+    (ap Nsucc (right-unit-mulN m))
+
 -- nat-mult-is-assoc : (m n k : ℕ) → Id (m ** (n ** k)) ((m ** n) ** k)
 -- nat-mult-is-assoc Nzero Nzero Nzero = refl
 -- nat-mult-is-assoc Nzero Nzero (Nsucc k) = refl
