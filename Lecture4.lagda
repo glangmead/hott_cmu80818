@@ -125,12 +125,15 @@ comm-addN (Nsucc m) Nzero = ap Nsucc (comm-addN m Nzero)
 comm-addN (Nsucc m) (Nsucc n) =
   (ap Nsucc (comm-addN m (Nsucc n))) · (inv (right-succ-addN (Nsucc n) m))
 
+left-zero-mulN : (m : ℕ) → Id (Nzero ** m) Nzero
+left-zero-mulN m = refl
+
 right-zero-mulN : (m : ℕ) → Id (m ** Nzero) Nzero
 right-zero-mulN Nzero = refl
 right-zero-mulN (Nsucc m) = concat (m ** Nzero) (right-unit-addN _) (right-zero-mulN m)
 
-left-zero-mulN : (m : ℕ) → Id (Nzero ** m) Nzero
-left-zero-mulN m = refl
+left-unit-mulN : (m : ℕ) → Id ((Nsucc Nzero) ** m) m
+left-unit-mulN m = refl
 
 right-unit-mulN : (m : ℕ) → Id (m ** (Nsucc Nzero)) m
 right-unit-mulN Nzero = refl
