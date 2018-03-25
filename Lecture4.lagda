@@ -70,6 +70,45 @@ tr B refl b = b
 apd : {i j : Level} {A : UU i} {B : A → UU j} (f : (x : A) → B x) {x y : A} (p : Id x y) → Id (tr B p (f x)) (f y)
 apd f refl = refl
 
+-- Exercises below
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 -- Exercise 4.1 The composition of transports is the transport of the concatenation
 tr-concat : {i j : Level} {A : UU i} (B : A → UU j) {x y z : A} (p : Id x y) (q : Id y z) (b : B x) → Id (tr B q (tr B p b)) (tr B (concat _ p q) b)
 tr-concat B refl refl b = refl
@@ -112,7 +151,7 @@ left-unit-addN m = refl
 
 assoc-addN : (m n k : ℕ) → Id (m + (n + k)) ((m + n) + k)
 assoc-addN Nzero n k = refl
-assoc-addN (Nsucc m) n k = ap Nsucc (assoc-addN m n k) 
+assoc-addN (Nsucc m) n k = ap Nsucc (assoc-addN m n k)
 
 right-succ-addN : (m n : ℕ) → Id (m + (Nsucc n)) (Nsucc (m + n))
 right-succ-addN Nzero n = refl
@@ -142,66 +181,32 @@ right-unit-mulN (Nsucc m) =
     (comm-addN _ (Nsucc Nzero))
     (ap Nsucc (right-unit-mulN m))
 
-distr-addN-mulN : (m n k : ℕ) → Id ((m + n) ** k) ((m  ** k) + (n ** k))
+distr-addN-mulN : (m n k : ℕ) → Id ((m + n) ** k) ((m ** k) + (n ** k))
 distr-addN-mulN Nzero n k = refl
 distr-addN-mulN (Nsucc m) n k =
   concat
     (((m ** k) + (n ** k)) + k)
-    (ap (λ x → x + k) (distr-addN-mulN m n k))
+    (ap (λ x → x + k) (distr-addN-mulN m n k))           -- ((m + n) ** k) + k -> ((m ** k) + (n ** k)) + k
     (concat
       ((m ** k) + ((n ** k) + k))
-      (inv (assoc-addN (m ** k) (n ** k) k))
+      (inv (assoc-addN (m ** k) (n ** k) k))             -- -> (m ** k) + ((n ** k) + k)
       (concat ((m ** k) + (k + (n ** k)))
-        (ap (λ x → (m ** k) + x)
-        (comm-addN (n ** k) k))
+        (ap (λ x → (m ** k) + x) (comm-addN (n ** k) k)) -- -> (m ** k) + (k + (n ** k))
         (concat
           (((m ** k) + k) + (n ** k))
-          (assoc-addN (m ** k) k (n ** k))
+          (assoc-addN (m ** k) k (n ** k))               -- -> ((m ** k) + k) + (n ** k)
           refl)))
 
 assoc-mulN : (m n k : ℕ) → Id (m ** (n ** k)) ((m ** n) ** k)
 assoc-mulN Nzero n k = refl
 assoc-mulN (Nsucc m) n k =
-  concat ((m ** (n ** k)) + (n ** k))
-  refl
-  (concat (((m ** n) ** k) + (n ** k))
-    (ap (λ x → x + (n ** k)) (assoc-mulN m n k))
-    ({!!}))
-
--- nat-mult-is-assoc : (m n k : ℕ) → Id (m ** (n ** k)) ((m ** n) ** k)
--- nat-mult-is-assoc Nzero Nzero Nzero = refl
--- nat-mult-is-assoc Nzero Nzero (Nsucc k) = refl
--- nat-mult-is-assoc Nzero (Nsucc n) Nzero = refl
--- nat-mult-is-assoc Nzero (Nsucc n) (Nsucc k) = refl
--- nat-mult-is-assoc (Nsucc m) Nzero Nzero = refl
--- nat-mult-is-assoc (Nsucc m) Nzero (Nsucc k) = refl
--- nat-mult-is-assoc (Nsucc m) (Nsucc n) Nzero = refl
--- nat-mult-is-assoc (Nsucc m) Nzero Nzero = refl
-
-N1 = Nsucc Nzero
-
--- nat-left-mult-identity : (m : ℕ) → Id (m ** N1) m
--- nat-left-mult-identity Nzero = {!   !}
--- nat-left-mult-identity (Nsucc m) = {!   !}
---
--- nat-right-mult-identity : (m : ℕ) → Id (N1 ** m) m
--- nat-right-mult-identity Nzero = {!   !}
--- nat-right-mult-identity (Nsucc m) = {!   !}
---
--- nat-mult-com : (m n : ℕ) → Id (m ** n) (n ** m)
--- nat-mult-com Nzero Nzero = {!   !}
--- nat-mult-com Nzero (Nsucc n) = {!   !}
--- nat-mult-com (Nsucc m) Nzero = {!   !}
--- nat-mult-com (Nsucc m) (Nsucc n) = {!   !}
---
--- nat-mult-distr : (m n k : ℕ) → Id (m ** (n + k)) ((m ** n) + (m ** k))
--- nat-mult-distr Nzero Nzero Nzero = {!   !}
--- nat-mult-distr Nzero Nzero (Nsucc k) = {!   !}
--- nat-mult-distr Nzero (Nsucc n) Nzero = {!   !}
--- nat-mult-distr Nzero (Nsucc n) (Nsucc k) = {!   !}
--- nat-mult-distr (Nsucc m) Nzero Nzero = {!   !}
--- nat-mult-distr (Nsucc m) Nzero (Nsucc k) = {!   !}
--- nat-mult-distr (Nsucc m) (Nsucc n) Nzero = {!   !}
--- nat-mult-distr (Nsucc m) (Nsucc n) (Nsucc k) = {!   !}
+  (concat
+    ((m ** (n ** k)) + (n ** k))
+    refl                                           -- -> (m ** (n ** k)) + (n ** k))
+    (concat (((m ** n) ** k) + (n ** k))
+      (ap (λ x → x + (n ** k)) (assoc-mulN m n k)) -- -> ((m ** n) ** k) + (n ** k)
+      (concat (((m ** n) + n) ** k)
+        (inv (distr-addN-mulN (m ** n) n k))       -- -> ((m ** n) + n) ** k
+        refl)))
 
 \end{code}
