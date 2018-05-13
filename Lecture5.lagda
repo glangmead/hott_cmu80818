@@ -4,9 +4,7 @@
 
 module Lecture5 where
 
-import Lecture4
-open Lecture4 public
-
+open import Lecture4 public
 
 -- Section 5.1 Homotopies
 _~_ : {i j : Level} {A : UU i} {B : A → UU j} (f g : (x : A) → B x) → UU (i ⊔ j)
@@ -55,6 +53,7 @@ A retract-of B = Σ (A → B) retr
 is-equiv : {i j : Level} {A : UU i} {B : UU j} (f : A → B) → UU (i ⊔ j)
 is-equiv f = sec f × retr f
 
+-- this equivalence symbol is \simeq
 _≃_ : {i j : Level} (A : UU i) (B : UU j) → UU (i ⊔ j)
 A ≃ B = Σ (A → B) (λ f → is-equiv f)
 
@@ -139,15 +138,78 @@ is-equiv-eq-pair' s t = pair (dpair (pair-eq' s t) (issec-pair-eq s t)) (dpair (
 is-equiv-eq-pair : {i j : Level} {A : UU i} {B : A → UU j} (s t : Σ A B) → is-equiv (eq-pair {i} {j} {A} {B} {s} {t})
 is-equiv-eq-pair = is-equiv-eq-pair'
 
--- Exercises
+-- Exercises below
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- Exercise 5.1
+-- singleton-ind-const-htpy : {i : Level} {A : UU i} (a : A) → ((ind-unit {i} {const unit (UU i) A} a) ~ (const unit A a))
+-- singleton-ind-const-htpy a = \ x → (a == a)
+
+-- Exercise 5.2
+ap-const-is-const-refl : {i j : Level} {A : UU i} {B : UU j} (b : B) {x y : A} → (ap (const A B b)) ~ (const (Id x y) (Id b b) refl)
+ap-const-is-const-refl b refl = refl
 
 -- Exercise 5.3
-inv-inv : {i : Level} {A : UU i} {x y : A} (p : Id x y) → Id (inv (inv p)) p
-inv-inv refl = refl
+inv-inv-htpy : {i : Level} {A : UU i} {x y : A} (p : Id x y) → Id (inv (inv p)) p
+inv-inv-htpy refl = refl
 
 is-equiv-inv : {i : Level} {A : UU i} (x y : A) →
   is-equiv (λ (p : Id x y) → inv p)
-is-equiv-inv x y = pair (dpair inv inv-inv) (dpair inv inv-inv)
+is-equiv-inv x y = pair (dpair inv inv-inv-htpy) (dpair inv inv-inv-htpy)
+
+concat-inv-left-htpy : {i : Level} {A : UU i} {x y z : A} (p : Id x y) → (q : Id y z) → Id ((inv p) · (p · q)) q
+concat-inv-left-htpy refl q = refl
+
+concat-inv-right-htpy : {i : Level} {A : UU i} {x y z : A} (p : Id x y) → (r : Id x z) → Id (p · ((inv p) · r)) r
+concat-inv-right-htpy refl r = refl
+
+is-equiv-concat : {i : Level} {A : UU i} (x y z : A) (p : Id x y) → (is-equiv λ (q : Id y z) → p · q)
+is-equiv-concat x y z p = pair (dpair (λ (r : Id x z) → ((inv p) · r)) (λ (r : Id x z) → concat-inv-right-htpy p r)) (dpair (λ (r : Id x z) → (inv p) · r) (λ (q : Id y z) → concat-inv-left-htpy p q))
+
+tr-inv-htpy : {i j : Level} {A : UU i} {B : A → UU j} {x y : A} (p : Id x y) (b : B x) → Id (tr B (inv p) (tr B p b)) b
+tr-inv-htpy refl b = refl
+
+tr-inv-htpy' : {i j : Level} {A : UU i} {B : A → UU j} {x y : A} (p : Id x y) (b : B y) → Id (tr B p (tr B (inv p) b)) b
+tr-inv-htpy' refl b = refl
+
+is-equiv-tr : {i j : Level} {A : UU i} (B : A → UU j) {x y : A} (p : Id x y) → is-equiv (λ b → (tr B p b))
+is-equiv-tr B p = pair (dpair (tr B (inv p)) (tr-inv-htpy' p)) (dpair (tr B (inv p)) (tr-inv-htpy p))
 
 -- Exercise 5.4
 is-equiv-htpy : {i j : Level} {A : UU i} {B : UU j} {f g : A → B} →
@@ -169,5 +231,17 @@ is-equiv-comp {i} {j} {k} {A} {B} {X} {f} {g} {h} H (dpair (dpair hs hs-issec) (
       (dpair (hr ∘ gr)
         (htpy-concat (hr ∘ h)
           (htpy-left-whisk hr (htpy-right-whisk gr-isretr h)) hr-isretr)))
+
+-- Exercise 5.6
+is-equiv-not : is-equiv not
+is-equiv-not not = pair (dpair not (λ (x : bool) → refl)) (dpair not (λ (x : bool) → refl))
+
+-- Exercise 5.7
+-- Exercise 5.8
+-- Exercise 5.9
+-- Exercise 5.10
+-- Exercise 5.11
+-- Exercise 5.12
+-- Exercise 5.13
 
 \end{code}

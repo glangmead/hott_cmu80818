@@ -232,6 +232,6 @@ is-equiv-is-contr {i} {j} {A} {B} f CA CB =
     (dpair
       (const B A (center CA))
       (sing-ind-is-contr B CB _ (inv (contraction CB (f (center CA))))))
-    (dpair (const B A (center CA)) (contraction CA)) 
+    (dpair (const B A (center CA)) (contraction CA))
 
 \end{code}

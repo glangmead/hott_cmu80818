@@ -28,6 +28,10 @@ ind-empty ()
 data bool : U where
   true false : bool
 
+not : bool → bool
+not true = false
+not false = true
+
 data coprod {i j : Level} (A : UU i) (B : UU j) : UU (i ⊔ j)  where
   inl : A → coprod A B
   inr : B → coprod A B

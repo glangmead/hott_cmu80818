@@ -11,6 +11,9 @@ open Lecture3 public
 data Id {i : Level} {A : UU i} (x : A) : A → UU i where
   refl : Id x x
 
+_==_ : {i : Level} {A : UU i} (x y : A) → UU i
+x == y = Id x y
+
 ind-Id : {i j : Level} {A : UU i} {x : A} (B : (y : A) (p : Id x y) → UU j) →
   (B x refl) → (y : A) (p : Id x y) → B y p
 ind-Id x b y refl = b
@@ -20,11 +23,25 @@ ind-Id x b y refl = b
 inv : {i : Level} {A : UU i} {x y : A} → Id x y → Id y x
 inv (refl) = refl
 
+_⁻¹ : {i : Level} {A : UU i} {x y : A} → Id x y → Id y x
+x ⁻¹ = inv x
+
 concat : {i : Level} {A : UU i} {x z : A} (y : A) → Id x y → Id y z → Id x z
 concat x refl q = q
 
 _·_ : {i : Level} {A : UU i} {x z : A} {y : A} → Id x y → Id y z → Id x z
 p · q = concat _ p q
+
+-- equational reasoning (TODO: demonstrate this by reworking some of the proofs to use it)
+infix 15 _==∎    -- \approx\qed
+infixr 10 _==⟨_⟩_    -- \approx\< \>
+
+_==∎ : ∀ {i : Level} {A : UU i} (a : A) → a == a
+a ==∎ = refl
+
+_==⟨_⟩_ : ∀ {i : Level} {A : UU i} (a : A) {a′ a″ : A} → a == a′ → a′ == a″ → a == a″
+a ==⟨ γ ⟩ η = γ · η
+-- end equational reasoning
 
 assoc : {i : Level} {A : UU i} {x y z w : A} (p : Id x y) (q : Id y z) (r : Id z w) → Id (concat _ p (concat _ q r)) (concat _ (concat _ p q) r)
 assoc refl q r = refl
