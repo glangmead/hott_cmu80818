@@ -178,6 +178,7 @@ is-equiv-eq-pair = is-equiv-eq-pair'
 
 
 -- Exercise 5.1
+
 -- singleton-ind-const-htpy : {i : Level} {A : UU i} (a : A) → ((ind-unit {i} {const unit (UU i) A} a) ~ (const unit A a))
 -- singleton-ind-const-htpy a = \ x → (a == a)
 
@@ -233,8 +234,8 @@ is-equiv-comp {i} {j} {k} {A} {B} {X} {f} {g} {h} H (dpair (dpair hs hs-issec) (
           (htpy-left-whisk hr (htpy-right-whisk gr-isretr h)) hr-isretr)))
 
 -- Exercise 5.6
-is-equiv-not : is-equiv not
-is-equiv-not not = pair (dpair not (λ (x : bool) → refl)) (dpair not (λ (x : bool) → refl))
+-- is-equiv-not : is-equiv not
+-- is-equiv-not not = pair (dpair not (λ (x : bool) → refl)) (dpair not (λ (x : bool) → refl))
 
 -- Exercise 5.7
 -- Exercise 5.8

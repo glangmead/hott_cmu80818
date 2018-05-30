@@ -7,7 +7,7 @@ module Lecture2 where
 import Basics
 open Basics public
 
--- Definition 2.2.3 define identity, and show lambda-abstraction in so doing
+-- Definition 2.2.3 define the identity function, and show lambda-abstraction in so doing
 id : {i : Level} {A : UU i} → A → A
 id = λ a → a -- can also use plain backslash \ instead of lambda (as it resembles lambda?)
 
@@ -20,12 +20,6 @@ g ∘ f = comp g f
 data ℕ : U where
   Nzero : ℕ
   Nsucc : ℕ → ℕ
-
--- induction: for any dependent type P over ℕ, define a section of P
--- built out of a term in P 0 and a section of P n → P(Nsucc n)
-ind-N : {i : Level} {P : ℕ → UU i} → P Nzero → ((n : ℕ) → P n → P(Nsucc n)) → ((n : ℕ) → P n)
-ind-N p0 pS Nzero = p0
-ind-N p0 pS (Nsucc n) = pS n (ind-N p0 pS n)
 
 add : ℕ → ℕ → ℕ
 add Nzero = id
@@ -62,16 +56,23 @@ factorial : ℕ → ℕ
 factorial Nzero = Nsucc Nzero
 factorial (Nsucc m) = (Nsucc m) ** (factorial m)
 
--- Exercise 2.6
+-- Exercise 2.6(a)
 Nmax : ℕ → (ℕ → ℕ)
 Nmax Nzero n = n
 Nmax (Nsucc m) Nzero = Nsucc m
 Nmax (Nsucc m) (Nsucc n) = Nsucc (Nmax m n)
 
--- Exercise 2.6
+-- Exercise 2.6(b)
 Nmin : ℕ → (ℕ → ℕ)
 Nmin Nzero n = Nzero
 Nmin (Nsucc m) Nzero = Nzero
 Nmin (Nsucc m) (Nsucc n) = Nsucc (Nmin m n)
+
+-- Exercise 2.7
+-- induction: for any dependent type P over ℕ, define a section of P
+-- built out of a term in P 0 and a section of P n → P(Nsucc n)
+ind-N : {i : Level} {P : ℕ → UU i} → P Nzero → ((n : ℕ) → P n → P(Nsucc n)) → ((n : ℕ) → P n)
+ind-N p0 pS Nzero = p0
+ind-N p0 pS (Nsucc n) = pS n (ind-N p0 pS n)
 
 \end{code}
