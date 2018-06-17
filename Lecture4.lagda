@@ -33,13 +33,13 @@ _·_ : {i : Level} {A : UU i} {x z : A} {y : A} → Id x y → Id y z → Id x z
 p · q = concat _ p q
 
 -- equational reasoning (TODO: demonstrate this by reworking some of the proofs to use it)
-infix 15 _==∎    -- \approx\qed
-infixr 10 _==⟨_⟩_    -- \approx\< \>
+infix 15 _==∎    -- \qed
+infixr 10 _==⟨_⟩_    -- \< \>
 
 _==∎ : ∀ {i : Level} {A : UU i} (a : A) → a == a
 a ==∎ = refl
 
-_==⟨_⟩_ : ∀ {i : Level} {A : UU i} (a : A) {a′ a″ : A} → a == a′ → a′ == a″ → a == a″
+_==⟨_⟩_ : ∀ {i : Level} {A : UU i} (a : A) {b c : A} → a == b → b == c → a == c
 a ==⟨ γ ⟩ η = γ · η
 -- end equational reasoning
 
@@ -179,7 +179,12 @@ comm-addN Nzero Nzero = refl
 comm-addN Nzero (Nsucc n) = ap Nsucc (comm-addN Nzero n)
 comm-addN (Nsucc m) Nzero = ap Nsucc (comm-addN m Nzero)
 comm-addN (Nsucc m) (Nsucc n) =
-  (ap Nsucc (comm-addN m (Nsucc n))) · (inv (right-succ-addN (Nsucc n) m))
+  ((Nsucc m) + (Nsucc n))
+    ==⟨ ap Nsucc (comm-addN m (Nsucc n)) ⟩
+  (Nsucc ((Nsucc n) + m))
+    ==⟨ inv (right-succ-addN (Nsucc n) m) ⟩
+  ((Nsucc n) + (Nsucc m))
+    ==∎
 
 left-zero-mulN : (m : ℕ) → Id (Nzero ** m) Nzero
 left-zero-mulN m = refl
@@ -194,36 +199,45 @@ left-unit-mulN m = refl
 right-unit-mulN : (m : ℕ) → Id (m ** (Nsucc Nzero)) m
 right-unit-mulN Nzero = refl
 right-unit-mulN (Nsucc m) =
-  concat (Nsucc (m ** (Nsucc Nzero)))
-    (comm-addN _ (Nsucc Nzero))
-    (ap Nsucc (right-unit-mulN m))
+  ((Nsucc m) ** (Nsucc Nzero))
+    ==⟨ comm-addN _ (Nsucc Nzero) ⟩
+  (Nsucc Nzero) + (m ** (Nsucc Nzero))
+    ==⟨ ap Nsucc (right-unit-mulN m) ⟩
+  (Nsucc m)
+    ==∎
 
 distr-addN-mulN : (m n k : ℕ) → Id ((m + n) ** k) ((m ** k) + (n ** k))
 distr-addN-mulN Nzero n k = refl
 distr-addN-mulN (Nsucc m) n k =
-  concat
-    (((m ** k) + (n ** k)) + k)
-    (ap (λ x → x + k) (distr-addN-mulN m n k))           -- ((m + n) ** k) + k -> ((m ** k) + (n ** k)) + k
-    (concat
-      ((m ** k) + ((n ** k) + k))
-      (inv (assoc-addN (m ** k) (n ** k) k))             -- -> (m ** k) + ((n ** k) + k)
-      (concat ((m ** k) + (k + (n ** k)))
-        (ap (λ x → (m ** k) + x) (comm-addN (n ** k) k)) -- -> (m ** k) + (k + (n ** k))
-        (concat
-          (((m ** k) + k) + (n ** k))
-          (assoc-addN (m ** k) k (n ** k))               -- -> ((m ** k) + k) + (n ** k)
-          refl)))
+  ((Nsucc m) + n) ** k
+    ==⟨ refl ⟩
+  (Nsucc (m + n)) ** k
+    ==⟨ refl ⟩
+  ((m + n) ** k) + k
+    ==⟨ ap (λ x → x + k) (distr-addN-mulN m n k) ⟩
+  ((m ** k) + (n ** k)) + k
+    ==⟨ inv (assoc-addN (m ** k) (n ** k) k) ⟩
+  (m ** k) + ((n ** k) + k)
+    ==⟨ ap (λ x → (m ** k) + x) (comm-addN (n ** k) k) ⟩
+  (m ** k) + (k + (n ** k))
+    ==⟨ assoc-addN (m ** k) k (n ** k) ⟩
+  ((m ** k) + k) + (n ** k)
+    ==⟨ refl ⟩
+  ((Nsucc m) ** k) + (n ** k)
+    ==∎
 
 assoc-mulN : (m n k : ℕ) → Id (m ** (n ** k)) ((m ** n) ** k)
 assoc-mulN Nzero n k = refl
 assoc-mulN (Nsucc m) n k =
-  (concat
-    ((m ** (n ** k)) + (n ** k))
-    refl                                           -- -> (m ** (n ** k)) + (n ** k))
-    (concat (((m ** n) ** k) + (n ** k))
-      (ap (λ x → x + (n ** k)) (assoc-mulN m n k)) -- -> ((m ** n) ** k) + (n ** k)
-      (concat (((m ** n) + n) ** k)
-        (inv (distr-addN-mulN (m ** n) n k))       -- -> ((m ** n) + n) ** k
-        refl)))
+  ((Nsucc m) ** (n ** k))
+    ==⟨ refl ⟩
+  (m ** (n ** k)) + (n ** k)
+    ==⟨ ap (λ x → x + (n ** k)) (assoc-mulN m n k) ⟩
+  ((m ** n) ** k) + (n ** k)
+    ==⟨ inv (distr-addN-mulN (m ** n) n k) ⟩
+  ((m ** n) + n) ** k
+    ==⟨ refl ⟩
+  (Nsucc m ** n) ** k
+    ==∎
 
 \end{code}
