@@ -32,9 +32,17 @@ not : bool → bool
 not true = false
 not false = true
 
+ind-bool : {i : Level} {P : bool → UU i} → P true → P false → ((x : bool) → P x)
+ind-bool p q true = p
+ind-bool p q false = q
+
 data coprod {i j : Level} (A : UU i) (B : UU j) : UU (i ⊔ j)  where
   inl : A → coprod A B
   inr : B → coprod A B
+
+ind-coprod : {i j : Level} {A : UU i} {B : UU j} {P : (coprod A B) → UU (i ⊔ j)} → ((a : A) → P (inl a)) → ((b : B) → P (inr b))  → ((t : (coprod A B)) → P t)
+ind-coprod f g (inl a) = f a
+ind-coprod f g (inr b) = g b
 
 data Sigma {i j : Level} (A : UU i) (B : A → UU j) : UU (i ⊔ j) where
   dpair : (x : A) → (B x → Sigma A B)

@@ -104,7 +104,6 @@ is-equiv-inv-is-equiv {_} {_} {_} {_} {f} E =
 is-equiv-id : {i : Level} (A : UU i) → is-equiv (id {_} {A})
 is-equiv-id A = pair (dpair id (htpy-refl id)) (dpair id (htpy-refl id))
 
-
 inv-Pi-swap : {i j k : Level} {A : UU i} {B : UU j} (C : A → B → UU k) →
   ((y : B) (x : A) → C x y) → ((x : A) (y : B) → C x y)
 inv-Pi-swap C g x y = g y x
@@ -179,8 +178,8 @@ is-equiv-eq-pair = is-equiv-eq-pair'
 
 -- Exercise 5.1
 
--- singleton-ind-const-htpy : {i : Level} {A : UU i} (a : A) → ((ind-unit {i} {const unit (UU i) A} a) ~ (const unit A a))
--- singleton-ind-const-htpy a = \ x → (a == a)
+singleton-ind-const-htpy : {i : Level} {A : UU i} (a : A) → (ind-unit a) ~ (const unit A a)
+singleton-ind-const-htpy a = ind-unit refl
 
 -- Exercise 5.2
 ap-const-is-const-refl : {i j : Level} {A : UU i} {B : UU j} (b : B) {x y : A} → (ap (const A B b)) ~ (const (Id x y) (Id b b) refl)
@@ -234,11 +233,45 @@ is-equiv-comp {i} {j} {k} {A} {B} {X} {f} {g} {h} H (dpair (dpair hs hs-issec) (
           (htpy-left-whisk hr (htpy-right-whisk gr-isretr h)) hr-isretr)))
 
 -- Exercise 5.6
--- is-equiv-not : is-equiv not
--- is-equiv-not not = pair (dpair not (λ (x : bool) → refl)) (dpair not (λ (x : bool) → refl))
+is-equiv-not : is-equiv not
+is-equiv-not = pair (dpair not (ind-bool refl refl)) (dpair not (ind-bool refl refl))
 
 -- Exercise 5.7
+-- Show that the successor function on the integers is an equivalence
+Zprev : ℤ → ℤ
+Zprev (inl x) = inl (Nsucc x)
+Zprev (inr (inl x)) = inl Nzero
+Zprev (inr (inr Nzero)) = Zzero
+Zprev (inr (inr (Nsucc x))) = inr (inr x)
+
+Zprev-succ-id : (Zprev ∘ Zsucc) ~ id
+Zprev-succ-id (inl Nzero) = refl
+Zprev-succ-id (inl (Nsucc x)) = refl
+Zprev-succ-id (inr (inr x)) = refl
+Zprev-succ-id (inr (inl star)) = refl
+
+Zsucc-prev-id : (Zsucc ∘ Zprev) ~ id
+Zsucc-prev-id (inl Nzero) = refl
+Zsucc-prev-id (inl (Nsucc x)) = refl
+Zsucc-prev-id (inr (inr Nzero)) = refl
+Zsucc-prev-id (inr (inr (Nsucc x))) = refl
+Zsucc-prev-id (inr (inl star)) = refl
+
+is-equiv-zsucc : is-equiv Zsucc
+is-equiv-zsucc = pair (dpair Zprev Zsucc-prev-id) (dpair Zprev Zprev-succ-id)
+
 -- Exercise 5.8
+-- construct equivalences A + B <-> B + A and A x B <-> B x A
+coprod-rev : {i j : Level} {A : UU i} {B : UU j} → (coprod A B) → (coprod B A)
+coprod-rev (inl a) = inr a
+coprod-rev (inr b) = inl b
+
+prod-rev : {i j : Level} {A : UU i} {B : UU j} → (prod A B) → (prod B A)
+prod-rev x = pair (pr2 x) (pr1 x)
+
+is-equiv-coprod-rev : is-equiv coprod-rev
+is-equiv-coprod-rev = pair (dpair ? ?) ?
+
 -- Exercise 5.9
 -- Exercise 5.10
 -- Exercise 5.11
