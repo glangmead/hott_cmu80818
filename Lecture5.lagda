@@ -239,7 +239,42 @@ is-equiv-comp {i} {j} {k} {A} {B} {X} {f} {g} {h} H (dpair (dpair hs hs-issec) (
 
 -- Exercise 5.7
 -- Exercise 5.8
+-- construct equivalences A + B <-> B + A and A x B <-> B x A
+coprod-rev : {i j : Level} (A : UU i) (B : UU j) → (coprod A B) → (coprod B A)
+coprod-rev A B (inl a) = inr a
+coprod-rev A B (inr b) = inl b
+
+coprod-rev-squared-is-id : {i j : Level} (A : UU i) (B : UU j) → (coprod-rev B A ∘ coprod-rev A B) ~ id
+coprod-rev-squared-is-id A B (inl a) = refl
+coprod-rev-squared-is-id A B (inr b) = refl
+
+is-equiv-coprod-rev : {i j : Level} (A : UU i) (B : UU j) → is-equiv (coprod-rev A B)
+is-equiv-coprod-rev A B = dpair (dpair (coprod-rev B A) (coprod-rev-squared-is-id B A)) (dpair (coprod-rev B A) (coprod-rev-squared-is-id A B))
+
+prod-rev : {i j : Level} (A : UU i) (B : UU j) → (prod A B) → (prod B A)
+prod-rev A B x = pair (pr2 x) (pr1 x)
+
+prod-rev-squared-is-id : {i j : Level} (A : UU i) (B : UU j) → (prod-rev B A ∘ prod-rev A B) ~ id
+prod-rev-squared-is-id A B (dpair a b) = refl
+
+is-equiv-prod-rev : {i j : Level} (A : UU i) (B : UU j) → is-equiv (prod-rev A B)
+is-equiv-prod-rev A B = dpair (dpair (prod-rev B A) (prod-rev-squared-is-id B A)) (dpair (prod-rev B A) (prod-rev-squared-is-id A B))
+
 -- Exercise 5.9
+--                             i      r
+-- Consider a sec/retr pair A ---> B ---> A with H : r ∘ i ~ id. Show that x = y is a retr of i(x) = i(y)
+path-is-retr-of-apsec : {i j : Level} {A : UU i} {B : UU j} (x : A) (y : B) → (i : A → B) → sec i → (r : B → A) → retr r → ((r ∘ i) ~ id) → (Id (i x) (i y)) → (Id x y)
+path-is-retr-of-apsec x y i i-is-sec r r-is-retr H p = (x)
+  ==⟨ (inv (H x)) ⟩
+(r (i x))
+  ==⟨ (inv (ap r)) ⟩
+(i x)
+  ==⟨ p ⟩
+(i y)
+  ==⟨ inv (ap i) ⟩
+(y)
+  ==∎
+
 -- Exercise 5.10
 -- Exercise 5.11
 -- Exercise 5.12
