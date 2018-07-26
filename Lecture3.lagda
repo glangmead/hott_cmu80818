@@ -32,6 +32,10 @@ not : bool → bool
 not true = false
 not false = true
 
+ind-bool : {i : Level} {P : bool → UU i} → P true → P false → (x : bool) → P x
+ind-bool Pt Pf true = Pt
+ind-bool Pt Pf false = Pf
+
 data coprod {i j : Level} (A : UU i) (B : UU j) : UU (i ⊔ j)  where
   inl : A → coprod A B
   inr : B → coprod A B
@@ -60,6 +64,7 @@ prod A B = Sigma A (λ a → B)
 _×_ :  {i j : Level} (A : UU i) (B : UU j) → UU (i ⊔ j)
 A × B = prod A B
 
+-- WARNING, can't use pair in pattern matching as it's not recognized as a ctor
 pair : {i j : Level} {A : UU i} {B : UU j} → A → (B → prod A B)
 pair a b = dpair a b
 
@@ -90,6 +95,9 @@ EqN (Nsucc m) (Nsucc n) = EqN m n
 -- The integers
 ℤ : U
 ℤ = coprod ℕ (coprod unit ℕ)
+--         ^         ^^^^ ^
+--     (-∞, -1]       0   [1, ∞)
+--     -(n+1)              n+1
 
 -- Inclusion of the negative integers
 in-neg : ℕ → ℤ
@@ -122,7 +130,7 @@ ind-ℤ P p-1 p-S p0 p1 pS (inr (inr (Nsucc x))) = pS x (ind-ℤ P p-1 p-S p0 p1
 Zsucc : ℤ → ℤ
 Zsucc (inl Nzero) = Zzero
 Zsucc (inl (Nsucc x)) = inl x
-Zsucc (inr (inl x)) = Zone
+Zsucc (inr (inl star)) = Zone
 Zsucc (inr (inr x)) = inr (inr (Nsucc x))
 
 -- Exercise 3.1

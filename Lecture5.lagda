@@ -179,8 +179,8 @@ is-equiv-eq-pair = is-equiv-eq-pair'
 
 -- Exercise 5.1
 
--- singleton-ind-const-htpy : {i : Level} {A : UU i} (a : A) → ((ind-unit {i} {const unit (UU i) A} a) ~ (const unit A a))
--- singleton-ind-const-htpy a = \ x → (a == a)
+singleton-ind-const-htpy : {i : Level} {A : UU i} (a : A) → (const 𝟙 A a) ~ (ind-unit a)
+singleton-ind-const-htpy a star = refl
 
 -- Exercise 5.2
 ap-const-is-const-refl : {i j : Level} {A : UU i} {B : UU j} (b : B) {x y : A} → (ap (const A B b)) ~ (const (Id x y) (Id b b) refl)
@@ -234,10 +234,36 @@ is-equiv-comp {i} {j} {k} {A} {B} {X} {f} {g} {h} H (dpair (dpair hs hs-issec) (
           (htpy-left-whisk hr (htpy-right-whisk gr-isretr h)) hr-isretr)))
 
 -- Exercise 5.6
--- is-equiv-not : is-equiv not
--- is-equiv-not not = pair (dpair not (λ (x : bool) → refl)) (dpair not (λ (x : bool) → refl))
+not-not-x-is-x : (x : bool) → Id (not (not x)) x
+not-not-x-is-x true = refl
+not-not-x-is-x false = refl
+
+is-equiv-not : is-equiv not
+is-equiv-not = pair (dpair not not-not-x-is-x) (dpair not not-not-x-is-x)
+
+path-true-to-false-is-contra : (Id true false) → 𝟘
+path-true-to-false-is-contra p = tr (ind-bool 𝟙 𝟘) p star
+
+same-image-not-equiv : (f : bool → bool) → (p : Id (f true) (f false)) → (is-equiv f) → 𝟘
+same-image-not-equiv f p (dpair f-is-sec (dpair g htpy)) = path-true-to-false-is-contra (true ==⟨ inv (htpy true) ⟩ g(f(true)) ==⟨ (ap g p) ⟩ g(f(false)) ==⟨ htpy false ⟩ false ==∎)
+-- NOTE: ap g p is a path from g(f(true)) to g(f(false))
 
 -- Exercise 5.7
+zpred-zsucc-x-is-x : (x : ℤ) → Id (Zpred (Zsucc x)) x
+zpred-zsucc-x-is-x (inl Nzero) = refl
+zpred-zsucc-x-is-x (inl (Nsucc x)) = refl
+zpred-zsucc-x-is-x (inr (inl star)) = refl
+zpred-zsucc-x-is-x (inr (inr x)) = refl
+
+zsucc-zpred-x-is-x : (x : ℤ) → Id (Zsucc (Zpred x)) x
+zsucc-zpred-x-is-x (inl x) = refl
+zsucc-zpred-x-is-x (inr (inl star)) = refl
+zsucc-zpred-x-is-x (inr (inr Nzero)) = refl
+zsucc-zpred-x-is-x (inr (inr (Nsucc x))) = refl
+
+is-equiv-zsucc : is-equiv Zsucc
+is-equiv-zsucc = dpair (dpair Zpred zsucc-zpred-x-is-x) (dpair Zpred zpred-zsucc-x-is-x)
+
 -- Exercise 5.8
 -- construct equivalences A + B <-> B + A and A x B <-> B x A
 coprod-rev : {i j : Level} (A : UU i) (B : UU j) → (coprod A B) → (coprod B A)
@@ -263,17 +289,8 @@ is-equiv-prod-rev A B = dpair (dpair (prod-rev B A) (prod-rev-squared-is-id B A)
 -- Exercise 5.9
 --                             i      r
 -- Consider a sec/retr pair A ---> B ---> A with H : r ∘ i ~ id. Show that x = y is a retr of i(x) = i(y)
-path-is-retr-of-apsec : {i j : Level} {A : UU i} {B : UU j} (x : A) (y : B) → (i : A → B) → sec i → (r : B → A) → retr r → ((r ∘ i) ~ id) → (Id (i x) (i y)) → (Id x y)
-path-is-retr-of-apsec x y i i-is-sec r r-is-retr H p = (x)
-  ==⟨ (inv (H x)) ⟩
-(r (i x))
-  ==⟨ (inv (ap r)) ⟩
-(i x)
-  ==⟨ p ⟩
-(i y)
-  ==⟨ inv (ap i) ⟩
-(y)
-  ==∎
+-- path-is-retr-of-apsec : {j k : Level} {A : UU j} {B : UU k} (x : A) (y : A) → (i : A → B) → (r : B → A) → ((r ∘ i) ~ id) → ((Id x y) retract-of (Id (i x) (i y)))
+-- path-is-retr-of-apsec x y i r H = dpair (ap i) ((dpair (( λ p → x ==⟨ inv (H x) ⟩ r (i x) ==⟨ (ap r p) ⟩ r (i y) ==⟨ (H y) ⟩ y ==∎ )) λ p → {!   !})
 
 -- Exercise 5.10
 -- Exercise 5.11
