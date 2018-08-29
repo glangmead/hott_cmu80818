@@ -1,5 +1,3 @@
-\begin{code}
-
 {-# OPTIONS --without-K #-}
 
 module Lecture4 where
@@ -239,5 +237,3 @@ assoc-mulN (Nsucc m) n k =
     ==⟨ refl ⟩
   (Nsucc m ** n) ** k
     ==∎
-
-\end{code}

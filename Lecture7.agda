@@ -1,5 +1,3 @@
-\begin{code}
-
 {-# OPTIONS --without-K #-}
 
 module Lecture7 where
@@ -126,5 +124,3 @@ id-fundamental-retr {_} {_} {A} {B} a i R =
                   (tot-id B)))))
         (is-contr-total-path _ a))
       (is-contr-total-path _ a))
-
-\end{code}

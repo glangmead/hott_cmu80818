@@ -1,5 +1,3 @@
-\begin{code}
-
 {-# OPTIONS --without-K #-}
 
 module Basics where
@@ -12,5 +10,3 @@ UU i = Set i
 
 U = UU lzero
 Type = UU (lsuc lzero)
-
-\end{code}

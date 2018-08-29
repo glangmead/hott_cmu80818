@@ -1,5 +1,3 @@
-\begin{code}
-
 {-# OPTIONS --without-K #-}
 
 module Lecture2 where
@@ -74,5 +72,3 @@ Nmin (Nsucc m) (Nsucc n) = Nsucc (Nmin m n)
 ind-N : {i : Level} {P : ℕ → UU i} → P Nzero → ((n : ℕ) → P n → P(Nsucc n)) → ((n : ℕ) → P n)
 ind-N p0 pS Nzero = p0
 ind-N p0 pS (Nsucc n) = pS n (ind-N p0 pS n)
-
-\end{code}

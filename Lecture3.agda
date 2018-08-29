@@ -1,5 +1,3 @@
-\begin{code}
-
 {-# OPTIONS --without-K #-}
 
 module Lecture3 where
@@ -411,5 +409,3 @@ Zneg : ℤ → ℤ
 Zneg (inl x) = inr (inr x)
 Zneg (inr (inl star)) = inr (inl star)
 Zneg (inr (inr x)) = inl x
-
-\end{code}

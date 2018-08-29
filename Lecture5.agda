@@ -1,5 +1,3 @@
-\begin{code}
-
 {-# OPTIONS --without-K #-}
 
 module Lecture5 where
@@ -296,5 +294,3 @@ is-equiv-prod-rev A B = dpair (dpair (prod-rev B A) (prod-rev-squared-is-id B A)
 -- Exercise 5.11
 -- Exercise 5.12
 -- Exercise 5.13
-
-\end{code}

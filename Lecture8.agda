@@ -1,5 +1,3 @@
-\begin{code}
-
 {-# OPTIONS --without-K #-}
 
 module Lecture8 where
@@ -100,5 +98,3 @@ is-set-nat =
     is-prop-EqN
     reflexive-EqN
     (least-reflexive-EqN (λ n → refl))
-
-\end{code}
