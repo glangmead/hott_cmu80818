@@ -30,12 +30,10 @@ ind-N p0 pS (Nsucc n) = pS n (ind-N p0 pS n)
 -- use the general induction principle to define addition
 -- in this case P is ℕ, the special non-dependent type over ℕ, and
 -- so sections of P (dependent functions Π_{x:ℕ} P(x)) are functions ℕ → ℕ
-add0 : ℕ → ℕ
-add0 n = n
-addS : ℕ → (ℕ → ℕ) → (ℕ → ℕ)
-addS n f m = Nsucc (f m)
+
 add : ℕ → ℕ → ℕ
-add = ind-N add0 addS
+add Nzero y = y
+add (Nsucc x) y = Nsucc (add x y)
 
 -- try some examples, hit C-c C-n (or whatever "compute normal form" is bound to)
 -- and try entering "add (Nsucc Nzero) (Nsucc (Nsucc Nzero))"
