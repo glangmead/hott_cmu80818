@@ -70,15 +70,15 @@ rGph = Sigma U (λ X → Sigma (X → X → U) (λ R → (x : X) → R x x))
 
 -- Finite sets
 Fin : ℕ → U
-Fin Nzero = empty
-Fin (Nsucc n) = coprod (Fin n) unit
+Fin zero-ℕ = empty
+Fin (succ-ℕ n) = coprod (Fin n) unit
 
 -- Observational equality on the natural numbers
-EqN : ℕ → (ℕ → U)
-EqN Nzero Nzero = 𝟙
-EqN Nzero (Nsucc n) = 𝟘
-EqN (Nsucc m) Nzero = 𝟘
-EqN (Nsucc m) (Nsucc n) = EqN m n
+Eq-ℕ : ℕ → (ℕ → U)
+Eq-ℕ zero-ℕ zero-ℕ = 𝟙
+Eq-ℕ zero-ℕ (succ-ℕ n) = 𝟘
+Eq-ℕ (succ-ℕ m) zero-ℕ = 𝟘
+Eq-ℕ (succ-ℕ m) (succ-ℕ n) = Eq-ℕ m n
 
 -- The integers
 ℤ : U
@@ -89,34 +89,33 @@ in-neg : ℕ → ℤ
 in-neg n = inl n
 
 -- Negative one
-Zneg-one : ℤ
-Zneg-one = in-neg Nzero
+neg-one-ℤ : ℤ
+neg-one-ℤ = in-neg zero-ℕ
 
 -- Zero
-Zzero : ℤ
-Zzero = inr (inl star)
+zero-ℤ : ℤ
+zero-ℤ = inr (inl star)
 
 -- One
-Zone : ℤ
-Zone = inr (inr Nzero)
+one-ℤ : ℤ
+one-ℤ = inr (inr zero-ℕ)
 
 -- Inclusion of the positive integers
 in-pos : ℕ → ℤ
 in-pos n = inr (inr n)
 
--- Since Agda is already strong with nested induction, I dont think we need this definition.
-ind-ℤ : {i : Level} (P : ℤ → UU i) → P Zneg-one → ((n : ℕ) → P (inl n) → P (inl (Nsucc n))) → P Zzero → P Zone → ((n : ℕ) → P (inr (inr (n))) → P (inr (inr (Nsucc n)))) → (k : ℤ) → P k
-ind-ℤ P p-1 p-S p0 p1 pS (inl Nzero) = p-1
-ind-ℤ P p-1 p-S p0 p1 pS (inl (Nsucc x)) = p-S x (ind-ℤ P p-1 p-S p0 p1 pS (inl x))
+ind-ℤ : {i : Level} (P : ℤ → UU i) → P neg-one-ℤ → ((n : ℕ) → P (inl n) → P (inl (succ-ℕ n))) → P zero-ℤ → P one-ℤ → ((n : ℕ) → P (inr (inr (n))) → P (inr (inr (succ-ℕ n)))) → (k : ℤ) → P k
+ind-ℤ P p-1 p-S p0 p1 pS (inl zero-ℕ) = p-1
+ind-ℤ P p-1 p-S p0 p1 pS (inl (succ-ℕ x)) = p-S x (ind-ℤ P p-1 p-S p0 p1 pS (inl x))
 ind-ℤ P p-1 p-S p0 p1 pS (inr (inl star)) = p0
-ind-ℤ P p-1 p-S p0 p1 pS (inr (inr Nzero)) = p1
-ind-ℤ P p-1 p-S p0 p1 pS (inr (inr (Nsucc x))) = pS x (ind-ℤ P p-1 p-S p0 p1 pS (inr (inr (x))))
+ind-ℤ P p-1 p-S p0 p1 pS (inr (inr zero-ℕ)) = p1
+ind-ℤ P p-1 p-S p0 p1 pS (inr (inr (succ-ℕ x))) = pS x (ind-ℤ P p-1 p-S p0 p1 pS (inr (inr (x))))
 
-Zsucc : ℤ → ℤ
-Zsucc (inl Nzero) = Zzero
-Zsucc (inl (Nsucc x)) = inl x
-Zsucc (inr (inl x)) = Zone
-Zsucc (inr (inr x)) = inr (inr (Nsucc x))
+succ-ℤ : ℤ → ℤ
+succ-ℤ (inl zero-ℕ) = zero-ℤ
+succ-ℤ (inl (succ-ℕ x)) = inl x
+succ-ℤ (inr (inl x)) = one-ℤ
+succ-ℤ (inr (inr x)) = inr (inr (succ-ℕ x))
 
 -- Exercise 3.1
 -- In this exercise we were asked to show that (A + ¬A) implies (¬¬A → A).
@@ -127,125 +126,125 @@ dne-dec A (inr x) = λ f → ind-empty (f x)
 
 -- Exercise 3.3
 -- In this exercise we were asked to show that the observational equality on ℕ is an equivalence relation.
-reflexive-EqN : (n : ℕ) → EqN n n
-reflexive-EqN Nzero = star
-reflexive-EqN (Nsucc n) = reflexive-EqN n
+reflexive-Eq-ℕ : (n : ℕ) → Eq-ℕ n n
+reflexive-Eq-ℕ zero-ℕ = star
+reflexive-Eq-ℕ (succ-ℕ n) = reflexive-Eq-ℕ n
 
-symmetric-EqN : (m n : ℕ) → EqN m n → EqN n m
-symmetric-EqN Nzero Nzero t = t
-symmetric-EqN Nzero (Nsucc n) t = t
-symmetric-EqN (Nsucc n) Nzero t = t
-symmetric-EqN (Nsucc m) (Nsucc n) t = symmetric-EqN m n t
+symmetric-Eq-ℕ : (m n : ℕ) → Eq-ℕ m n → Eq-ℕ n m
+symmetric-Eq-ℕ zero-ℕ zero-ℕ t = t
+symmetric-Eq-ℕ zero-ℕ (succ-ℕ n) t = t
+symmetric-Eq-ℕ (succ-ℕ n) zero-ℕ t = t
+symmetric-Eq-ℕ (succ-ℕ m) (succ-ℕ n) t = symmetric-Eq-ℕ m n t
 
-transitive-EqN : (l m n : ℕ) → EqN l m → EqN m n → EqN l n
-transitive-EqN Nzero Nzero Nzero s t = star
-transitive-EqN (Nsucc n) Nzero Nzero s t = ind-empty s
-transitive-EqN Nzero (Nsucc n) Nzero s t = ind-empty s
-transitive-EqN Nzero Nzero (Nsucc n) s t = ind-empty t
-transitive-EqN (Nsucc l) (Nsucc m) Nzero s t = ind-empty t
-transitive-EqN (Nsucc l) Nzero (Nsucc n) s t = ind-empty s
-transitive-EqN Nzero (Nsucc m) (Nsucc n) s t = ind-empty s
-transitive-EqN (Nsucc l) (Nsucc m) (Nsucc n) s t = transitive-EqN l m n s t
+transitive-Eq-ℕ : (l m n : ℕ) → Eq-ℕ l m → Eq-ℕ m n → Eq-ℕ l n
+transitive-Eq-ℕ zero-ℕ zero-ℕ zero-ℕ s t = star
+transitive-Eq-ℕ (succ-ℕ n) zero-ℕ zero-ℕ s t = ind-empty s
+transitive-Eq-ℕ zero-ℕ (succ-ℕ n) zero-ℕ s t = ind-empty s
+transitive-Eq-ℕ zero-ℕ zero-ℕ (succ-ℕ n) s t = ind-empty t
+transitive-Eq-ℕ (succ-ℕ l) (succ-ℕ m) zero-ℕ s t = ind-empty t
+transitive-Eq-ℕ (succ-ℕ l) zero-ℕ (succ-ℕ n) s t = ind-empty s
+transitive-Eq-ℕ zero-ℕ (succ-ℕ m) (succ-ℕ n) s t = ind-empty s
+transitive-Eq-ℕ (succ-ℕ l) (succ-ℕ m) (succ-ℕ n) s t = transitive-Eq-ℕ l m n s t
 
 -- Exercise 3.4
 -- In this exercise we were asked to show that observational equality on the natural numbers is the least reflexive relation, in the sense that it implies all other reflexive relation. As we will see once we introduce the identity type, it follows that observationally equal natural numbers can be identified.
 
 -- We first make an auxilary construction, where the relation is quantified over inside the scope of the variables n and m. This is to ensure that the inductive hypothesis is strong enough to make the induction go through.
-least-reflexive-EqN' : {i : Level} (n m : ℕ)
-                     (R : ℕ → ℕ → UU i) (ρ : (n : ℕ) → R n n) → EqN n m → R n m
-least-reflexive-EqN' Nzero Nzero R ρ p = ρ Nzero
-least-reflexive-EqN' Nzero (Nsucc m) R ρ = ind-empty
-least-reflexive-EqN' (Nsucc n) Nzero R ρ = ind-empty
-least-reflexive-EqN' (Nsucc n) (Nsucc m) R ρ =
-  least-reflexive-EqN' n m (λ x y → R (Nsucc x) (Nsucc y)) (λ x → ρ (Nsucc x))
+least-reflexive-Eq-ℕ' : {i : Level} (n m : ℕ)
+                     (R : ℕ → ℕ → UU i) (ρ : (n : ℕ) → R n n) → Eq-ℕ n m → R n m
+least-reflexive-Eq-ℕ' zero-ℕ zero-ℕ R ρ p = ρ zero-ℕ
+least-reflexive-Eq-ℕ' zero-ℕ (succ-ℕ m) R ρ = ind-empty
+least-reflexive-Eq-ℕ' (succ-ℕ n) zero-ℕ R ρ = ind-empty
+least-reflexive-Eq-ℕ' (succ-ℕ n) (succ-ℕ m) R ρ =
+  least-reflexive-Eq-ℕ' n m (λ x y → R (succ-ℕ x) (succ-ℕ y)) (λ x → ρ (succ-ℕ x))
 
 -- Now we solve the actual exercise by rearranging the order of the variables.
-least-reflexive-EqN : {i : Level} {R : ℕ → ℕ → UU i}
-  (ρ : (n : ℕ) → R n n) → (n m : ℕ) → EqN n m → R n m
-least-reflexive-EqN ρ n m p = least-reflexive-EqN' n m _ ρ p
+least-reflexive-Eq-ℕ : {i : Level} {R : ℕ → ℕ → UU i}
+  (ρ : (n : ℕ) → R n n) → (n m : ℕ) → Eq-ℕ n m → R n m
+least-reflexive-Eq-ℕ ρ n m p = least-reflexive-Eq-ℕ' n m _ ρ p
 
 -- Exercise 3.5
 -- In this exercise we were asked to show that any function on the natural numbers preserves observational equality. The quick solution uses the fact that observational equality is the least reflexive relation.
-preserve_EqN : (f : ℕ → ℕ) (n m : ℕ) → (EqN n m) → (EqN (f n) (f m))
-preserve_EqN f =
-    least-reflexive-EqN {_} {λ x y → EqN (f x) (f y)}
-      (λ x → reflexive-EqN (f x))
+preserve_Eq-ℕ : (f : ℕ → ℕ) (n m : ℕ) → (Eq-ℕ n m) → (Eq-ℕ (f n) (f m))
+preserve_Eq-ℕ f =
+    least-reflexive-Eq-ℕ {_} {λ x y → Eq-ℕ (f x) (f y)}
+      (λ x → reflexive-Eq-ℕ (f x))
 
 -- Exercise 3.6
 -- In this exercise we were asked to construct the relations ≤ and < on the natural numbers, and show basic properties about them.
 
 -- Definition of ≤ 
-leqN : ℕ → ℕ → U
-leqN Nzero Nzero = unit
-leqN Nzero (Nsucc m) = unit
-leqN (Nsucc n) Nzero = empty
-leqN (Nsucc n) (Nsucc m) = leqN n m
+leq-ℕ : ℕ → ℕ → U
+leq-ℕ zero-ℕ zero-ℕ = unit
+leq-ℕ zero-ℕ (succ-ℕ m) = unit
+leq-ℕ (succ-ℕ n) zero-ℕ = empty
+leq-ℕ (succ-ℕ n) (succ-ℕ m) = leq-ℕ n m
 
-_≤_ = leqN
+_≤_ = leq-ℕ
 
 -- Definition of <
-leN : ℕ → ℕ → U
-leN Nzero Nzero = empty
-leN Nzero (Nsucc m) = unit
-leN (Nsucc n) Nzero = empty
-leN (Nsucc n) (Nsucc m) = leN n m
+le-ℕ : ℕ → ℕ → U
+le-ℕ zero-ℕ zero-ℕ = empty
+le-ℕ zero-ℕ (succ-ℕ m) = unit
+le-ℕ (succ-ℕ n) zero-ℕ = empty
+le-ℕ (succ-ℕ n) (succ-ℕ m) = le-ℕ n m
 
-_<_ = leN
+_<_ = le-ℕ
 
-reflexive-leqN : (n : ℕ) → n ≤ n
-reflexive-leqN Nzero = star
-reflexive-leqN (Nsucc n) = reflexive-leqN n
+reflexive-leq-ℕ : (n : ℕ) → n ≤ n
+reflexive-leq-ℕ zero-ℕ = star
+reflexive-leq-ℕ (succ-ℕ n) = reflexive-leq-ℕ n
 
-anti-reflexive-leN : (n : ℕ) → ¬ (n < n)
-anti-reflexive-leN Nzero = ind-empty
-anti-reflexive-leN (Nsucc n) = anti-reflexive-leN n
+anti-reflexive-le-ℕ : (n : ℕ) → ¬ (n < n)
+anti-reflexive-le-ℕ zero-ℕ = ind-empty
+anti-reflexive-le-ℕ (succ-ℕ n) = anti-reflexive-le-ℕ n
 
-transitive-leqN : (n m l : ℕ) → (n ≤ m) → (m ≤ l) → (n ≤ l)
-transitive-leqN Nzero Nzero Nzero p q = reflexive-leqN Nzero
-transitive-leqN Nzero Nzero (Nsucc l) p q = q
-transitive-leqN Nzero (Nsucc m) Nzero p q = star
-transitive-leqN Nzero (Nsucc m) (Nsucc l) p q = star
-transitive-leqN (Nsucc n) Nzero l p q = ind-empty p
-transitive-leqN (Nsucc n) (Nsucc m) Nzero p q = ind-empty q
-transitive-leqN (Nsucc n) (Nsucc m) (Nsucc l) p q = transitive-leqN n m l p q
+transitive-leq-ℕ : (n m l : ℕ) → (n ≤ m) → (m ≤ l) → (n ≤ l)
+transitive-leq-ℕ zero-ℕ zero-ℕ zero-ℕ p q = reflexive-leq-ℕ zero-ℕ
+transitive-leq-ℕ zero-ℕ zero-ℕ (succ-ℕ l) p q = q
+transitive-leq-ℕ zero-ℕ (succ-ℕ m) zero-ℕ p q = star
+transitive-leq-ℕ zero-ℕ (succ-ℕ m) (succ-ℕ l) p q = star
+transitive-leq-ℕ (succ-ℕ n) zero-ℕ l p q = ind-empty p
+transitive-leq-ℕ (succ-ℕ n) (succ-ℕ m) zero-ℕ p q = ind-empty q
+transitive-leq-ℕ (succ-ℕ n) (succ-ℕ m) (succ-ℕ l) p q = transitive-leq-ℕ n m l p q
 
-transitive-leN : (n m l : ℕ) → (leN n m) → (leN m l) → (leN n l)
-transitive-leN Nzero Nzero Nzero p q = p
-transitive-leN Nzero Nzero (Nsucc l) p q = q
-transitive-leN Nzero (Nsucc m) Nzero p q = ind-empty q
-transitive-leN Nzero (Nsucc m) (Nsucc l) p q = star
-transitive-leN (Nsucc n) Nzero l p q = ind-empty p
-transitive-leN (Nsucc n) (Nsucc m) Nzero p q = ind-empty q
-transitive-leN (Nsucc n) (Nsucc m) (Nsucc l) p q = transitive-leN n m l p q
+transitive-le-ℕ : (n m l : ℕ) → (le-ℕ n m) → (le-ℕ m l) → (le-ℕ n l)
+transitive-le-ℕ zero-ℕ zero-ℕ zero-ℕ p q = p
+transitive-le-ℕ zero-ℕ zero-ℕ (succ-ℕ l) p q = q
+transitive-le-ℕ zero-ℕ (succ-ℕ m) zero-ℕ p q = ind-empty q
+transitive-le-ℕ zero-ℕ (succ-ℕ m) (succ-ℕ l) p q = star
+transitive-le-ℕ (succ-ℕ n) zero-ℕ l p q = ind-empty p
+transitive-le-ℕ (succ-ℕ n) (succ-ℕ m) zero-ℕ p q = ind-empty q
+transitive-le-ℕ (succ-ℕ n) (succ-ℕ m) (succ-ℕ l) p q = transitive-le-ℕ n m l p q
 
-succ-leN : (n : ℕ) → leN n (Nsucc n)
-succ-leN Nzero = star
-succ-leN (Nsucc n) = succ-leN n
+succ-le-ℕ : (n : ℕ) → le-ℕ n (succ-ℕ n)
+succ-le-ℕ zero-ℕ = star
+succ-le-ℕ (succ-ℕ n) = succ-le-ℕ n
 
 -- Exercise 3.7
 -- With the construction of the divisibility relation we open the door to basic number theory.
 divides : (d n : ℕ) → U
-divides d n = Σ ℕ (λ m → EqN (d ** m) n)
+divides d n = Σ ℕ (λ m → Eq-ℕ (d ** m) n)
 
 -- Exercise 3.8
 -- In this exercise we were asked to construct observational equality on the booleans. This construction is analogous to, but simpler than, the construction of observational equality on the natural numbers.
-Eq2 : bool → bool → U
-Eq2 true true = unit
-Eq2 true false = empty
-Eq2 false true = empty
-Eq2 false false = unit
+Eq-𝟚 : bool → bool → U
+Eq-𝟚 true true = unit
+Eq-𝟚 true false = empty
+Eq-𝟚 false true = empty
+Eq-𝟚 false false = unit
 
-reflexive-Eq2 : (x : bool) → Eq2 x x
-reflexive-Eq2 true = star
-reflexive-Eq2 false = star
+reflexive-Eq-𝟚 : (x : bool) → Eq-𝟚 x x
+reflexive-Eq-𝟚 true = star
+reflexive-Eq-𝟚 false = star
 
-least-reflexive-Eq2 : {i : Level}
+least-reflexive-Eq-𝟚 : {i : Level}
   (R : bool → bool → UU i) (ρ : (x : bool) → R x x)
-  (x y : bool) → Eq2 x y → R x y
-least-reflexive-Eq2 R ρ true true p = ρ true
-least-reflexive-Eq2 R ρ true false p = ind-empty p
-least-reflexive-Eq2 R ρ false true p = ind-empty p
-least-reflexive-Eq2 R ρ false false p = ρ false
+  (x y : bool) → Eq-𝟚 x y → R x y
+least-reflexive-Eq-𝟚 R ρ true true p = ρ true
+least-reflexive-Eq-𝟚 R ρ true false p = ind-empty p
+least-reflexive-Eq-𝟚 R ρ false true p = ind-empty p
+least-reflexive-Eq-𝟚 R ρ false false p = ρ false
 
 -- Exercise 3.9
 -- In this exercise we were asked to show that 1 + 1 satisfies the induction principle of the booleans. In other words, type theory cannot distinguish the booleans from the type 1 + 1. We will see later that they are indeed equivalent types.
@@ -262,105 +261,104 @@ ind-coprod-unit-unit p0 p1 (inr star) = p1
 
 -- Exercise 3.10
 -- In this exercise we were asked to define the relations ≤ and < on the integers. As a criterion of correctness, we were then also asked to show that the type of all integers l satisfying k ≤ l satisfy the induction principle of the natural numbers.
--- It turns out that this is a long exercise that requires to develop intermediate properties of the relation ≤, involving long proofs. None of them is really hard, but they are probably unintelligible because induction on the integers splits into so many cases.
 
-leqZ : ℤ → ℤ → U
-leqZ (inl Nzero) (inl Nzero) = unit
-leqZ (inl Nzero) (inl (Nsucc x)) = empty
-leqZ (inl Nzero) (inr l) = unit
-leqZ (inl (Nsucc x)) (inl Nzero) = unit
-leqZ (inl (Nsucc x)) (inl (Nsucc y)) = leqZ (inl x) (inl y)
-leqZ (inl (Nsucc x)) (inr l) = unit
-leqZ (inr k) (inl x) = empty
-leqZ (inr (inl star)) (inr l) = unit
-leqZ (inr (inr x)) (inr (inl star)) = empty
-leqZ (inr (inr Nzero)) (inr (inr y)) = unit
-leqZ (inr (inr (Nsucc x))) (inr (inr Nzero)) = empty
-leqZ (inr (inr (Nsucc x))) (inr (inr (Nsucc y))) =
-  leqZ (inr (inr (x))) (inr (inr (y)))
+leq-ℤ : ℤ → ℤ → U
+leq-ℤ (inl zero-ℕ) (inl zero-ℕ) = unit
+leq-ℤ (inl zero-ℕ) (inl (succ-ℕ x)) = empty
+leq-ℤ (inl zero-ℕ) (inr l) = unit
+leq-ℤ (inl (succ-ℕ x)) (inl zero-ℕ) = unit
+leq-ℤ (inl (succ-ℕ x)) (inl (succ-ℕ y)) = leq-ℤ (inl x) (inl y)
+leq-ℤ (inl (succ-ℕ x)) (inr l) = unit
+leq-ℤ (inr k) (inl x) = empty
+leq-ℤ (inr (inl star)) (inr l) = unit
+leq-ℤ (inr (inr x)) (inr (inl star)) = empty
+leq-ℤ (inr (inr zero-ℕ)) (inr (inr y)) = unit
+leq-ℤ (inr (inr (succ-ℕ x))) (inr (inr zero-ℕ)) = empty
+leq-ℤ (inr (inr (succ-ℕ x))) (inr (inr (succ-ℕ y))) =
+  leq-ℤ (inr (inr (x))) (inr (inr (y)))
 
-reflexive-leqZ : (k : ℤ) → leqZ k k
-reflexive-leqZ (inl Nzero) = star
-reflexive-leqZ (inl (Nsucc x)) = reflexive-leqZ (inl x)
-reflexive-leqZ (inr (inl star)) = star
-reflexive-leqZ (inr (inr Nzero)) = star
-reflexive-leqZ (inr (inr (Nsucc x))) = reflexive-leqZ (inr (inr x))
+reflexive-leq-ℤ : (k : ℤ) → leq-ℤ k k
+reflexive-leq-ℤ (inl zero-ℕ) = star
+reflexive-leq-ℤ (inl (succ-ℕ x)) = reflexive-leq-ℤ (inl x)
+reflexive-leq-ℤ (inr (inl star)) = star
+reflexive-leq-ℤ (inr (inr zero-ℕ)) = star
+reflexive-leq-ℤ (inr (inr (succ-ℕ x))) = reflexive-leq-ℤ (inr (inr x))
 
-transitive-leqZ : (k l m : ℤ) → leqZ k l → leqZ l m → leqZ k m
-transitive-leqZ (inl Nzero) (inl Nzero) m p q = q
-transitive-leqZ (inl Nzero) (inl (Nsucc x)) m p q = ind-empty p
-transitive-leqZ (inl Nzero) (inr (inl star)) (inl Nzero) star q =
-  reflexive-leqZ (inl Nzero)
-transitive-leqZ (inl Nzero) (inr (inl star)) (inl (Nsucc x)) star q =
+transitive-leq-ℤ : (k l m : ℤ) → leq-ℤ k l → leq-ℤ l m → leq-ℤ k m
+transitive-leq-ℤ (inl zero-ℕ) (inl zero-ℕ) m p q = q
+transitive-leq-ℤ (inl zero-ℕ) (inl (succ-ℕ x)) m p q = ind-empty p
+transitive-leq-ℤ (inl zero-ℕ) (inr (inl star)) (inl zero-ℕ) star q =
+  reflexive-leq-ℤ (inl zero-ℕ)
+transitive-leq-ℤ (inl zero-ℕ) (inr (inl star)) (inl (succ-ℕ x)) star q =
   ind-empty q
-transitive-leqZ (inl Nzero) (inr (inl star)) (inr (inl star)) star q = star
-transitive-leqZ (inl Nzero) (inr (inl star)) (inr (inr x)) star q = star
-transitive-leqZ (inl Nzero) (inr (inr x)) (inl y) star q = ind-empty q
-transitive-leqZ (inl Nzero) (inr (inr x)) (inr (inl star)) star q =
+transitive-leq-ℤ (inl zero-ℕ) (inr (inl star)) (inr (inl star)) star q = star
+transitive-leq-ℤ (inl zero-ℕ) (inr (inl star)) (inr (inr x)) star q = star
+transitive-leq-ℤ (inl zero-ℕ) (inr (inr x)) (inl y) star q = ind-empty q
+transitive-leq-ℤ (inl zero-ℕ) (inr (inr x)) (inr (inl star)) star q =
   ind-empty q
-transitive-leqZ (inl Nzero) (inr (inr x)) (inr (inr y)) star q = star
-transitive-leqZ (inl (Nsucc x)) (inl Nzero) (inl Nzero) star q = star
-transitive-leqZ (inl (Nsucc x)) (inl Nzero) (inl (Nsucc y)) star q =
+transitive-leq-ℤ (inl zero-ℕ) (inr (inr x)) (inr (inr y)) star q = star
+transitive-leq-ℤ (inl (succ-ℕ x)) (inl zero-ℕ) (inl zero-ℕ) star q = star
+transitive-leq-ℤ (inl (succ-ℕ x)) (inl zero-ℕ) (inl (succ-ℕ y)) star q =
   ind-empty q
-transitive-leqZ (inl (Nsucc x)) (inl Nzero) (inr m) star q = star
-transitive-leqZ (inl (Nsucc x)) (inl (Nsucc y)) (inl Nzero) p q = star
-transitive-leqZ (inl (Nsucc x)) (inl (Nsucc y)) (inl (Nsucc z)) p q =
-  transitive-leqZ (inl x) (inl y) (inl z) p q
-transitive-leqZ (inl (Nsucc x)) (inl (Nsucc y)) (inr m) p q = star
-transitive-leqZ (inl (Nsucc x)) (inr y) (inl z) star q = ind-empty q
-transitive-leqZ (inl (Nsucc x)) (inr y) (inr z) star q = star
-transitive-leqZ (inr k) (inl x) m p q = ind-empty p
-transitive-leqZ (inr (inl star)) (inr l) (inl x) star q = ind-empty q
-transitive-leqZ (inr (inl star)) (inr l) (inr m) star q = star
-transitive-leqZ (inr (inr x)) (inr (inl star)) m p q = ind-empty p
-transitive-leqZ (inr (inr Nzero)) (inr (inr Nzero)) m p q = q
-transitive-leqZ (inr (inr Nzero)) (inr (inr (Nsucc y))) (inl x) star q =
+transitive-leq-ℤ (inl (succ-ℕ x)) (inl zero-ℕ) (inr m) star q = star
+transitive-leq-ℤ (inl (succ-ℕ x)) (inl (succ-ℕ y)) (inl zero-ℕ) p q = star
+transitive-leq-ℤ (inl (succ-ℕ x)) (inl (succ-ℕ y)) (inl (succ-ℕ z)) p q =
+  transitive-leq-ℤ (inl x) (inl y) (inl z) p q
+transitive-leq-ℤ (inl (succ-ℕ x)) (inl (succ-ℕ y)) (inr m) p q = star
+transitive-leq-ℤ (inl (succ-ℕ x)) (inr y) (inl z) star q = ind-empty q
+transitive-leq-ℤ (inl (succ-ℕ x)) (inr y) (inr z) star q = star
+transitive-leq-ℤ (inr k) (inl x) m p q = ind-empty p
+transitive-leq-ℤ (inr (inl star)) (inr l) (inl x) star q = ind-empty q
+transitive-leq-ℤ (inr (inl star)) (inr l) (inr m) star q = star
+transitive-leq-ℤ (inr (inr x)) (inr (inl star)) m p q = ind-empty p
+transitive-leq-ℤ (inr (inr zero-ℕ)) (inr (inr zero-ℕ)) m p q = q
+transitive-leq-ℤ (inr (inr zero-ℕ)) (inr (inr (succ-ℕ y))) (inl x) star q =
   ind-empty q
-transitive-leqZ (inr (inr Nzero)) (inr (inr (Nsucc y))) (inr (inl star))
+transitive-leq-ℤ (inr (inr zero-ℕ)) (inr (inr (succ-ℕ y))) (inr (inl star))
                 star q =
   ind-empty q
-transitive-leqZ (inr (inr Nzero)) (inr (inr (Nsucc y))) (inr (inr z))
+transitive-leq-ℤ (inr (inr zero-ℕ)) (inr (inr (succ-ℕ y))) (inr (inr z))
                 star q = star
-transitive-leqZ (inr (inr (Nsucc x))) (inr (inr Nzero)) m p q = ind-empty p
-transitive-leqZ (inr (inr (Nsucc x))) (inr (inr (Nsucc y))) (inl z) p q =
+transitive-leq-ℤ (inr (inr (succ-ℕ x))) (inr (inr zero-ℕ)) m p q = ind-empty p
+transitive-leq-ℤ (inr (inr (succ-ℕ x))) (inr (inr (succ-ℕ y))) (inl z) p q =
   ind-empty q
-transitive-leqZ (inr (inr (Nsucc x))) (inr (inr (Nsucc y)))
+transitive-leq-ℤ (inr (inr (succ-ℕ x))) (inr (inr (succ-ℕ y)))
   (inr (inl star)) p q = ind-empty q
-transitive-leqZ (inr (inr (Nsucc x))) (inr (inr (Nsucc y)))
-  (inr (inr Nzero)) p q = ind-empty q
-transitive-leqZ (inr (inr (Nsucc x))) (inr (inr (Nsucc y)))
-  (inr (inr (Nsucc z))) p q =
-  transitive-leqZ (inr (inr x)) (inr (inr y)) (inr (inr z)) p q
+transitive-leq-ℤ (inr (inr (succ-ℕ x))) (inr (inr (succ-ℕ y)))
+  (inr (inr zero-ℕ)) p q = ind-empty q
+transitive-leq-ℤ (inr (inr (succ-ℕ x))) (inr (inr (succ-ℕ y)))
+  (inr (inr (succ-ℕ z))) p q =
+  transitive-leq-ℤ (inr (inr x)) (inr (inr y)) (inr (inr z)) p q
 
-succ-leqZ : (k : ℤ) → leqZ k (Zsucc k)
-succ-leqZ (inl Nzero) = star
-succ-leqZ (inl (Nsucc Nzero)) = star
-succ-leqZ (inl (Nsucc (Nsucc x))) = succ-leqZ (inl (Nsucc x))
-succ-leqZ (inr (inl star)) = star
-succ-leqZ (inr (inr Nzero)) = star
-succ-leqZ (inr (inr (Nsucc x))) = succ-leqZ (inr (inr x))
+succ-leq-ℤ : (k : ℤ) → leq-ℤ k (succ-ℤ k)
+succ-leq-ℤ (inl zero-ℕ) = star
+succ-leq-ℤ (inl (succ-ℕ zero-ℕ)) = star
+succ-leq-ℤ (inl (succ-ℕ (succ-ℕ x))) = succ-leq-ℤ (inl (succ-ℕ x))
+succ-leq-ℤ (inr (inl star)) = star
+succ-leq-ℤ (inr (inr zero-ℕ)) = star
+succ-leq-ℤ (inr (inr (succ-ℕ x))) = succ-leq-ℤ (inr (inr x))
 
-leqZ-succ-leqZ : (k l : ℤ) → leqZ k l → leqZ k (Zsucc l)
-leqZ-succ-leqZ k l p = transitive-leqZ k l (Zsucc l) p (succ-leqZ l)
+leq-ℤ-succ-leq-ℤ : (k l : ℤ) → leq-ℤ k l → leq-ℤ k (succ-ℤ l)
+leq-ℤ-succ-leq-ℤ k l p = transitive-leq-ℤ k l (succ-ℤ l) p (succ-leq-ℤ l)
 
-leZ : ℤ → ℤ → U
-leZ (inl Nzero) (inl x) = empty
-leZ (inl Nzero) (inr y) = unit
-leZ (inl (Nsucc x)) (inl Nzero) = unit
-leZ (inl (Nsucc x)) (inl (Nsucc y)) = leZ (inl x) (inl y)
-leZ (inl (Nsucc x)) (inr y) = unit
-leZ (inr x) (inl y) = empty
-leZ (inr (inl star)) (inr (inl star)) = empty
-leZ (inr (inl star)) (inr (inr x)) = unit
-leZ (inr (inr x)) (inr (inl star)) = empty
-leZ (inr (inr Nzero)) (inr (inr Nzero)) = empty
-leZ (inr (inr Nzero)) (inr (inr (Nsucc y))) = unit
-leZ (inr (inr (Nsucc x))) (inr (inr Nzero)) = empty
-leZ (inr (inr (Nsucc x))) (inr (inr (Nsucc y))) =
-  leZ (inr (inr x)) (inr (inr y))
+le-ℤ : ℤ → ℤ → U
+le-ℤ (inl zero-ℕ) (inl x) = empty
+le-ℤ (inl zero-ℕ) (inr y) = unit
+le-ℤ (inl (succ-ℕ x)) (inl zero-ℕ) = unit
+le-ℤ (inl (succ-ℕ x)) (inl (succ-ℕ y)) = le-ℤ (inl x) (inl y)
+le-ℤ (inl (succ-ℕ x)) (inr y) = unit
+le-ℤ (inr x) (inl y) = empty
+le-ℤ (inr (inl star)) (inr (inl star)) = empty
+le-ℤ (inr (inl star)) (inr (inr x)) = unit
+le-ℤ (inr (inr x)) (inr (inl star)) = empty
+le-ℤ (inr (inr zero-ℕ)) (inr (inr zero-ℕ)) = empty
+le-ℤ (inr (inr zero-ℕ)) (inr (inr (succ-ℕ y))) = unit
+le-ℤ (inr (inr (succ-ℕ x))) (inr (inr zero-ℕ)) = empty
+le-ℤ (inr (inr (succ-ℕ x))) (inr (inr (succ-ℕ y))) =
+  le-ℤ (inr (inr x)) (inr (inr y))
 
-fam-shift-leqZ : (k : ℤ) {i : Level} (P : (l : ℤ) → leqZ k l → UU i) → (l : ℤ) → (leqZ (Zsucc k) l) → UU i
-fam-shift-leqZ k P l p = P l (transitive-leqZ k (Zsucc k) l (succ-leqZ k) p)
+fam-shift-leq-ℤ : (k : ℤ) {i : Level} (P : (l : ℤ) → leq-ℤ k l → UU i) → (l : ℤ) → (leq-ℤ (succ-ℤ k) l) → UU i
+fam-shift-leq-ℤ k P l p = P l (transitive-leq-ℤ k (succ-ℤ k) l (succ-leq-ℤ k) p)
 
 -- ind-Z-leqZ : (k : ℤ) {i : Level} (P : (l : ℤ) → (leqZ k l) → UU i) →
 --   P k (reflexive-leqZ k) →
@@ -378,23 +376,23 @@ fam-shift-leqZ k P l p = P l (transitive-leqZ k (Zsucc k) l (succ-leqZ k) p)
 -- ind-Z-leqZ (inr k) P pk pS l p = {!!}
 
 -- Exercise 3.11
-Zpred : ℤ → ℤ
-Zpred (inl x) = inl (Nsucc x)
-Zpred (inr (inl star)) = inl Nzero
-Zpred (inr (inr Nzero)) = inr (inl star)
-Zpred (inr (inr (Nsucc x))) = inr (inr x)
+pred-ℤ : ℤ → ℤ
+pred-ℤ (inl x) = inl (succ-ℕ x)
+pred-ℤ (inr (inl star)) = inl zero-ℕ
+pred-ℤ (inr (inr zero-ℕ)) = inr (inl star)
+pred-ℤ (inr (inr (succ-ℕ x))) = inr (inr x)
 
 -- Exercise 3.12
-Zadd : ℤ → ℤ → ℤ
-Zadd (inl Nzero) l = Zpred l
-Zadd (inl (Nsucc x)) l = Zpred (Zadd (inl x) l)
-Zadd (inr (inl star)) l = l
-Zadd (inr (inr Nzero)) l = Zsucc l
-Zadd (inr (inr (Nsucc x))) l = Zsucc (Zadd (inr (inr x)) l)
+add-ℤ : ℤ → ℤ → ℤ
+add-ℤ (inl zero-ℕ) l = pred-ℤ l
+add-ℤ (inl (succ-ℕ x)) l = pred-ℤ (add-ℤ (inl x) l)
+add-ℤ (inr (inl star)) l = l
+add-ℤ (inr (inr zero-ℕ)) l = succ-ℤ l
+add-ℤ (inr (inr (succ-ℕ x))) l = succ-ℤ (add-ℤ (inr (inr x)) l)
 
-Zneg : ℤ → ℤ
-Zneg (inl x) = inr (inr x)
-Zneg (inr (inl star)) = inr (inl star)
-Zneg (inr (inr x)) = inl x
+neg-ℤ : ℤ → ℤ
+neg-ℤ (inl x) = inr (inr x)
+neg-ℤ (inr (inl star)) = inr (inl star)
+neg-ℤ (inr (inr x)) = inl x
 
 \end{code}

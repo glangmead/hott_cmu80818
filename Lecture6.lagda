@@ -56,7 +56,7 @@ is-contr-unit = is-contr-is-sing unit star (is-sing-unit)
 
 is-sing-total-path : {i : Level} (A : UU i) (a : A) →
   is-sing (Σ A (λ x → Id a x)) (dpair a refl)
-is-sing-total-path A a B = dpair (ind-Σ ∘ (ind-Id _)) (λ b → refl)
+is-sing-total-path A a B = dpair (ind-Σ ∘ (ind-Id a _)) (λ b → refl)
 
 is-contr-total-path : {i : Level} (A : UU i) (a : A) →
   is-contr (Σ A (λ x → Id a x))
@@ -197,7 +197,7 @@ is-prop-is-contr {i} {A} C =
     (λ x → ((y : A) → is-contr (Id x y)))
     (λ y → dpair
            (contraction C y)
-           (ind-Id
+           (ind-Id (center C)
              (λ z (p : Id (center C) z) → Id (contraction C z) p)
              (coh-contraction C)
              y))
@@ -220,7 +220,7 @@ is-contr-is-equiv-const (dpair (dpair g issec) (dpair h isretr)) = dpair (h star
 is-contr-is-equiv : {i j : Level} {A : UU i} {B : UU j} (f : A → B) → is-equiv f → is-contr B → is-contr A
 is-contr-is-equiv f Ef C =
   is-contr-is-equiv-const
-    (is-equiv-comp (λ x → refl) Ef (is-equiv-const-is-contr C))
+    (is-equiv-comp _ _ f (λ x → refl) Ef (is-equiv-const-is-contr C))
 
 is-contr-is-equiv' : {i j : Level} {A : UU i} {B : UU j} (f : A → B) → is-equiv f → is-contr A → is-contr B
 is-contr-is-equiv' f Ef C = is-contr-is-equiv (inv-is-equiv Ef) (is-equiv-inv-is-equiv Ef) C

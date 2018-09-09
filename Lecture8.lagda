@@ -25,7 +25,7 @@ is-prop-is-prop' : {i : Level} {A : UU i} → is-prop' A → is-prop A
 is-prop-is-prop' {i} {A} H x y =
   dpair
     (concat _ (inv (H x x)) (H x y))
-    (ind-Id
+    (ind-Id x
       (λ z p → Id (concat _ (inv (H x x)) (H x z)) p)
       (left-inv (H x x)) y)
 
@@ -48,7 +48,7 @@ axiom-K A = (x : A) (p : Id x x) → Id refl p
 
 is-set-axiom-K : {i : Level} (A : UU i) → axiom-K A → is-set A
 is-set-axiom-K A H x y =
-  is-prop-is-prop' (ind-Id (λ z p → (q : Id x z) → Id p q) (H x) y)
+  is-prop-is-prop' (ind-Id x (λ z p → (q : Id x z) → Id p q) (H x) y)
 
 axiom-K-is-set : {i : Level} (A : UU i) → is-set A → axiom-K A
 axiom-K-is-set A H x p =
@@ -66,7 +66,7 @@ is-equiv-prop-in-id : {i j : Level} {A : UU i}
 is-equiv-prop-in-id R p ρ i x =
   id-fundamental-retr x (i x)
     (λ y → dpair
-      (ind-Id (λ z p → R x z) (ρ x) y)
+      (ind-Id x (λ z p → R x z) (ρ x) y)
       ((λ r → is-prop'-is-prop (p x y) _ r)))
 
 is-prop-is-equiv : {i j : Level} {A : UU i} (B : UU j)
@@ -87,18 +87,18 @@ is-set-prop-in-id : {i j : Level} {A : UU i}
   → is-set A
 is-set-prop-in-id R p ρ i x y = is-prop-is-equiv' (R x y) (i x y) (is-equiv-prop-in-id R p ρ i x y) (p x y)
 
-is-prop-EqN : (n m : ℕ) → is-prop (EqN n m)
-is-prop-EqN Nzero Nzero = is-prop-unit
-is-prop-EqN Nzero (Nsucc m) = is-prop-empty
-is-prop-EqN (Nsucc n) Nzero = is-prop-empty
-is-prop-EqN (Nsucc n) (Nsucc m) = is-prop-EqN n m
+is-prop-Eq-ℕ : (n m : ℕ) → is-prop (Eq-ℕ n m)
+is-prop-Eq-ℕ zero-ℕ zero-ℕ = is-prop-unit
+is-prop-Eq-ℕ zero-ℕ (succ-ℕ m) = is-prop-empty
+is-prop-Eq-ℕ (succ-ℕ n) zero-ℕ = is-prop-empty
+is-prop-Eq-ℕ (succ-ℕ n) (succ-ℕ m) = is-prop-Eq-ℕ n m
 
 is-set-nat : is-set ℕ
 is-set-nat =
   is-set-prop-in-id
-    EqN
-    is-prop-EqN
-    reflexive-EqN
-    (least-reflexive-EqN (λ n → refl))
+    Eq-ℕ
+    is-prop-Eq-ℕ
+    reflexive-Eq-ℕ
+    (least-reflexive-Eq-ℕ (λ n → refl))
 
 \end{code}

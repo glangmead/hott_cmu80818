@@ -67,16 +67,16 @@ id-fundamental-gen {_} {_} {A} {B} a b C f x =
 -- The canonical form of the fundamental theorem of identity types
 id-fundamental : {i j : Level} {A : UU i} {B : A → UU j} (a : A) (b : B a) →
   is-contr (Σ A B) →
-  (x : A) → is-equiv (ind-Id (λ x p → B x) b x)
+  (x : A) → is-equiv (ind-Id a (λ x p → B x) b x)
 id-fundamental {i} {j} {A} {B} a b H =
-  id-fundamental-gen a b H (ind-Id (λ x p → B x) b)
+  id-fundamental-gen a b H (ind-Id a (λ x p → B x) b)
 
 -- The converse of the fundamental theorem of identity types
 id-fundamental' : {i j : Level} {A : UU i} {B : A → UU j} (a : A) (b : B a) →
-  ((x : A) → is-equiv (ind-Id (λ x p → B x) b x)) → is-contr (Σ A B)
+  ((x : A) → is-equiv (ind-Id a (λ x p → B x) b x)) → is-contr (Σ A B)
 id-fundamental' {i} {j} {A} {B} a b H =
   is-contr-is-equiv'
-    (tot (ind-Id (λ x p → B x) b))
+    (tot (ind-Id a (λ x p → B x) b))
     (is-equiv-tot-is-equiv-ftr _ H)
     (is-contr-total-path A a)
 

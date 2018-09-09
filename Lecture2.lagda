@@ -18,29 +18,32 @@ _∘_ : {i j k : Level} {A : UU i} {B : UU j} {C : UU k} → (B → C) → ((A �
 g ∘ f = comp g f
 
 data ℕ : U where
-  Nzero : ℕ
-  Nsucc : ℕ → ℕ
+  zero-ℕ : ℕ
+  succ-ℕ : ℕ → ℕ
+
+one-ℕ : ℕ
+one-ℕ = succ-ℕ zero-ℕ
 
 -- induction: for any dependent type P over ℕ, define a section of P
 -- built out of a term in P 0 and a section of P n → P(Nsucc n)
-ind-N : {i : Level} {P : ℕ → UU i} → P Nzero → ((n : ℕ) → P n → P(Nsucc n)) → ((n : ℕ) → P n)
-ind-N p0 pS Nzero = p0
-ind-N p0 pS (Nsucc n) = pS n (ind-N p0 pS n)
+ind-ℕ : {i : Level} {P : ℕ → UU i} → P zero-ℕ → ((n : ℕ) → P n → P(succ-ℕ n)) → ((n : ℕ) → P n)
+ind-ℕ p0 pS zero-ℕ = p0
+ind-ℕ p0 pS (succ-ℕ n) = pS n (ind-ℕ p0 pS n)
 
 -- use the general induction principle to define addition
 -- in this case P is ℕ, the special non-dependent type over ℕ, and
 -- so sections of P (dependent functions Π_{x:ℕ} P(x)) are functions ℕ → ℕ
 
-add : ℕ → ℕ → ℕ
-add Nzero y = y
-add (Nsucc x) y = Nsucc (add x y)
+add-ℕ : ℕ → ℕ → ℕ
+add-ℕ zero-ℕ y = y
+add-ℕ (succ-ℕ x) y = succ-ℕ (add-ℕ x y)
 
 -- try some examples, hit C-c C-n (or whatever "compute normal form" is bound to)
 -- and try entering "add (Nsucc Nzero) (Nsucc (Nsucc Nzero))"
 -- you should get "Nsucc (Nsucc (Nsucc Nzero))"
 
 _+_ : ℕ → ℕ → ℕ
-n + m = add n m
+n + m = add-ℕ n m
 
 -- Exercise 2.3
 const : {i j : Level} (A : UU i) (B : UU j) (b : B) → A → B
@@ -52,30 +55,33 @@ Pi-swap : {i j k : Level} {A : UU i} {B : UU j} {C : A → (B → UU k)} →
 Pi-swap f y x = f x y
 
 -- Exercise 2.5(a)
+mul-ℕ : ℕ → (ℕ → ℕ)
+mul-ℕ zero-ℕ n = zero-ℕ
+mul-ℕ (succ-ℕ m) n = add-ℕ (mul-ℕ m n) n
+
 _**_ : ℕ → (ℕ → ℕ)
-Nzero ** n = Nzero
-(Nsucc m) ** n = (m ** n) + n
+m ** n = mul-ℕ m n
 
 -- Exercise 2.5(b)
 _^_ : ℕ → (ℕ → ℕ)
-m ^ Nzero = Nsucc Nzero
-m ^ (Nsucc n) = m ** (m ^ n)
+m ^ zero-ℕ = one-ℕ
+m ^ (succ-ℕ n) = mul-ℕ m (m ^ n)
 
 -- Exercise 2.5(c)
 factorial : ℕ → ℕ
-factorial Nzero = Nsucc Nzero
-factorial (Nsucc m) = (Nsucc m) ** (factorial m)
+factorial zero-ℕ = one-ℕ
+factorial (succ-ℕ m) = (succ-ℕ m) ** (factorial m)
 
 -- Exercise 2.6
-Nmax : ℕ → (ℕ → ℕ)
-Nmax Nzero n = n
-Nmax (Nsucc m) Nzero = Nsucc m
-Nmax (Nsucc m) (Nsucc n) = Nsucc (Nmax m n)
+max-ℕ : ℕ → (ℕ → ℕ)
+max-ℕ zero-ℕ n = n
+max-ℕ (succ-ℕ m) zero-ℕ = succ-ℕ m
+max-ℕ (succ-ℕ m) (succ-ℕ n) = succ-ℕ (max-ℕ m n)
 
 -- Exercise 2.6
-Nmin : ℕ → (ℕ → ℕ)
-Nmin Nzero n = Nzero
-Nmin (Nsucc m) Nzero = Nzero
-Nmin (Nsucc m) (Nsucc n) = Nsucc (Nmin m n)
+min-ℕ : ℕ → (ℕ → ℕ)
+min-ℕ zero-ℕ n = zero-ℕ
+min-ℕ (succ-ℕ m) zero-ℕ = zero-ℕ
+min-ℕ (succ-ℕ m) (succ-ℕ n) = succ-ℕ (min-ℕ m n)
 
 \end{code}
