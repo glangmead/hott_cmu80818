@@ -146,6 +146,25 @@ is-equiv-eq-pair' s t = pair (dpair (pair-eq' s t) (issec-pair-eq s t)) (dpair (
 is-equiv-eq-pair : {i j : Level} {A : UU i} {B : A → UU j} (s t : Σ A B) → is-equiv (eq-pair {i} {j} {A} {B} {s} {t})
 is-equiv-eq-pair = is-equiv-eq-pair'
 
+-- We also define a function eq-pair-triv, which is like eq-pair but simplified for the case where B is just a type.
+
+eq-pair-triv : {i j : Level} {A : UU i} {B : UU j} (s t : prod A B) → prod (Id (pr1 s) (pr1 t)) (Id (pr2 s) (pr2 t)) → Id s t
+eq-pair-triv (dpair x y) (dpair .x .y) (dpair refl refl) = refl
+
+-- Ideally, we would use the 3-for-2 property of equivalences to show that eq-pair-triv is an equivalence, using that eq-pair is an equivalence. Indeed, there is an equivalence (Id x x') × (Id y y') → Σ (Id x x') (λ p → Id (tr (λ x → B) p y) y'). However, to show that this map is an equivalence we either give a direct proof (in which case we might as well have given a direct proof that eq-pair-triv is an equivalence), or we use the fact that it is the induced map on total spaces of a fiberwise equivalence (the topic of Lecture 7). Thus it seems that a direct proof showing that eq-pair-triv is an equivalence is quickest for now. 
+
+pair-eq-triv : {i j : Level} {A : UU i} {B : UU j} (s t : prod A B) → Id s t → prod (Id (pr1 s) (pr1 t)) (Id (pr2 s) (pr2 t))
+pair-eq-triv s .s refl = pair refl refl
+
+isretr-pair-eq-triv : {i j : Level} {A : UU i} {B : UU j} (s t : prod A B) → ((pair-eq-triv s t) ∘ (eq-pair-triv s t)) ~ id
+isretr-pair-eq-triv (dpair x y) (dpair .x .y) (dpair refl refl) = refl
+
+issec-pair-eq-triv : {i j : Level} {A : UU i} {B : UU j} (s t : prod A B) → ((eq-pair-triv s t) ∘ (pair-eq-triv s t)) ~ id
+issec-pair-eq-triv (dpair x y) (dpair .x .y) refl = refl
+
+is-equiv-eq-pair-triv : {i j : Level} {A : UU i} {B : UU j} (s t : prod A B) → is-equiv (eq-pair-triv s t)
+is-equiv-eq-pair-triv s t = pair (dpair (pair-eq-triv s t) (issec-pair-eq-triv s t)) (dpair (pair-eq-triv s t) (isretr-pair-eq-triv s t))
+
 -- Exercises
 
 -- Exercise 5.1
@@ -371,6 +390,124 @@ is-equiv-Σ-swap : {i j k : Level} (A : UU i) (B : UU j) (C : A → B → UU k) 
 is-equiv-Σ-swap A B C = pair (dpair (Σ-swap' A B C) (Σ-swap-swap B A (λ y x → C x y))) (dpair (Σ-swap' A B C) (Σ-swap-swap A B C))
 
 -- Exercise 5.12
+
+-- First we construct directly some identifications on the type of integers.
+
+left-unit-law-add-ℤ : (k : ℤ) → Id (add-ℤ zero-ℤ k) k
+left-unit-law-add-ℤ k = refl
+
+right-unit-law-add-ℤ : (k : ℤ) → Id (add-ℤ k zero-ℤ) k
+right-unit-law-add-ℤ (inl zero-ℕ) = refl
+right-unit-law-add-ℤ (inl (succ-ℕ x)) = ap pred-ℤ (right-unit-law-add-ℤ (inl x))
+right-unit-law-add-ℤ (inr (inl star)) = refl
+right-unit-law-add-ℤ (inr (inr zero-ℕ)) = refl
+right-unit-law-add-ℤ (inr (inr (succ-ℕ x))) = ap succ-ℤ (right-unit-law-add-ℤ (inr (inr x)))
+
+left-predecessor-law-add-ℤ : (x y : ℤ) → Id (add-ℤ (pred-ℤ x) y) (pred-ℤ (add-ℤ x y))
+left-predecessor-law-add-ℤ (inl n) y = refl
+left-predecessor-law-add-ℤ (inr (inl star)) y = refl
+left-predecessor-law-add-ℤ (inr (inr zero-ℕ)) y = concat y (ap (λ t → add-ℤ t y) (left-inverse-pred-ℤ zero-ℤ)) (inv (left-inverse-pred-ℤ y))
+left-predecessor-law-add-ℤ (inr (inr (succ-ℕ x))) y = concat (add-ℤ (inr (inr x)) y) (ap (λ t → (add-ℤ t y)) (left-inverse-pred-ℤ (inr (inr x)))) (inv (left-inverse-pred-ℤ (add-ℤ (inr (inr x)) y)))
+
+right-predecessor-law-add-ℤ : (x y : ℤ) → Id (add-ℤ x (pred-ℤ y)) (pred-ℤ (add-ℤ x y))
+right-predecessor-law-add-ℤ (inl zero-ℕ) n = refl
+right-predecessor-law-add-ℤ (inl (succ-ℕ m)) n = ap pred-ℤ (right-predecessor-law-add-ℤ (inl m) n)
+right-predecessor-law-add-ℤ (inr (inl star)) n = refl
+right-predecessor-law-add-ℤ (inr (inr zero-ℕ)) n = concat n (right-inverse-pred-ℤ n) (inv (left-inverse-pred-ℤ n))
+right-predecessor-law-add-ℤ (inr (inr (succ-ℕ x))) n = concat (succ-ℤ (pred-ℤ (add-ℤ (inr (inr x)) n))) (ap succ-ℤ (right-predecessor-law-add-ℤ (inr (inr x)) n)) (concat (add-ℤ (inr (inr x)) n) (right-inverse-pred-ℤ (add-ℤ (inr (inr x)) n)) (inv (left-inverse-pred-ℤ (add-ℤ (inr (inr x)) n))))
+
+left-successor-law-add-ℤ : (x y : ℤ) → Id (add-ℤ (succ-ℤ x) y) (succ-ℤ (add-ℤ x y))
+left-successor-law-add-ℤ (inl zero-ℕ) y = concat y (ap (λ t → add-ℤ t y) (right-inverse-pred-ℤ zero-ℤ)) (inv (right-inverse-pred-ℤ y))
+left-successor-law-add-ℤ (inl (succ-ℕ x)) y = concat (succ-ℤ (pred-ℤ (add-ℤ (inl x) y))) (inv (right-inverse-pred-ℤ (add-ℤ (inl x) y))) (ap succ-ℤ (inv (left-predecessor-law-add-ℤ (inl x) y)))
+left-successor-law-add-ℤ (inr (inl star)) y = refl
+left-successor-law-add-ℤ (inr (inr x)) y = refl
+
+associative-add-ℤ : (x y z : ℤ) → Id (add-ℤ (add-ℤ x y) z) (add-ℤ x (add-ℤ y z))
+associative-add-ℤ (inl zero-ℕ) y z =
+  concat
+    ( add-ℤ (pred-ℤ y) z)
+    ( ap (λ t → add-ℤ t z) (left-predecessor-law-add-ℤ zero-ℤ y))
+    ( concat
+      ( pred-ℤ (add-ℤ y z))
+      ( left-predecessor-law-add-ℤ y z)
+      ( inv (left-predecessor-law-add-ℤ zero-ℤ (add-ℤ y z))))
+associative-add-ℤ (inl (succ-ℕ x)) y z =
+  concat
+    ( add-ℤ (pred-ℤ (add-ℤ (inl x) y)) z)
+    ( ap (λ t → add-ℤ t z) (left-predecessor-law-add-ℤ (inl x) y))
+    ( concat
+      ( pred-ℤ (add-ℤ (add-ℤ (inl x) y) z))
+      ( left-predecessor-law-add-ℤ (add-ℤ (inl x) y) z)
+      ( concat
+        ( pred-ℤ (add-ℤ (inl x) (add-ℤ y z)))
+        ( ap pred-ℤ (associative-add-ℤ (inl x) y z))
+        ( inv (left-predecessor-law-add-ℤ (inl x) (add-ℤ y z)))))
+associative-add-ℤ (inr (inl star)) y z = refl
+associative-add-ℤ (inr (inr zero-ℕ)) y z =
+  concat
+    ( add-ℤ (succ-ℤ y) z)
+    ( ap (λ t → add-ℤ t z) (left-successor-law-add-ℤ zero-ℤ y))
+    ( concat
+      ( succ-ℤ (add-ℤ y z))
+      ( left-successor-law-add-ℤ y z)
+      ( inv (left-successor-law-add-ℤ zero-ℤ (add-ℤ y z))))
+associative-add-ℤ (inr (inr (succ-ℕ x))) y z =
+  concat
+    ( add-ℤ (succ-ℤ (add-ℤ (inr (inr x)) y)) z)
+    ( ap (λ t → add-ℤ t z) (left-successor-law-add-ℤ (inr (inr x)) y))
+    ( concat
+      ( succ-ℤ (add-ℤ (add-ℤ (inr (inr x)) y) z))
+      ( left-successor-law-add-ℤ (add-ℤ (inr (inr x)) y) z)
+      ( concat
+        ( succ-ℤ (add-ℤ (inr (inr x)) (add-ℤ y z)))
+        ( ap succ-ℤ (associative-add-ℤ (inr (inr x)) y z))
+        ( inv (left-successor-law-add-ℤ (inr (inr x)) (add-ℤ y z)))))
+
+right-successor-law-add-ℤ : (x y : ℤ) → Id (add-ℤ x (succ-ℤ y)) (succ-ℤ (add-ℤ x y))
+right-successor-law-add-ℤ x y = {!!}
+
+{-
+-- Next, we equip the type ℕ × ℕ with the structure of a monoid.
+
+add-ℕℕ : prod ℕ ℕ → prod ℕ ℕ → prod ℕ ℕ
+add-ℕℕ (dpair m n) (dpair m' n') = dpair (add-ℕ m m') (add-ℕ n n')
+
+zero-ℕℕ : prod ℕ ℕ
+zero-ℕℕ = pair zero-ℕ zero-ℕ
+
+left-unit-law-add-ℕℕ : (x : prod ℕ ℕ) → Id (add-ℕℕ zero-ℕℕ x) x
+left-unit-law-add-ℕℕ (dpair m n) = eq-pair (dpair refl refl)
+
+right-unit-law-add-ℕℕ : (x : prod ℕ ℕ) → Id (add-ℕℕ x zero-ℕℕ) x
+right-unit-law-add-ℕℕ (dpair m n) = eq-pair-triv _ _ (pair (right-unit-law-add-ℕ m) (right-unit-law-add-ℕ n))
+
+associative-add-ℕℕ : (x y z : prod ℕ ℕ) → Id (add-ℕℕ (add-ℕℕ x y) z) (add-ℕℕ x (add-ℕℕ y z))
+associative-add-ℕℕ (dpair m n) (dpair m' n') (dpair m'' n'') = eq-pair-triv _ _ (pair (associative-add-ℕ m m' m'') (associative-add-ℕ n n' n''))
+
+-- We equip the type ℕ × ℕ with some further useful structure. There is a pointwise multiplication structure on ℕ × ℕ, of which the unit is (pair one-ℕ one-ℕ). This is, however, not the multiplication we will be looking at. There is a second multiplication structure on ℕ × ℕ, of which the unit is (pair one-ℕ zero-ℕ). 
+
+one-ℕℕ : prod ℕ ℕ
+one-ℕℕ = pair one-ℕ zero-ℕ
+
+mul-ℕℕ : prod ℕ ℕ → prod ℕ ℕ → prod ℕ ℕ
+mul-ℕℕ (dpair m n) (dpair m' n') = dpair (add-ℕ (mul-ℕ m m') (mul-ℕ n n')) (add-ℕ (mul-ℕ m n') (mul-ℕ n m'))
+
+-- We note that this multiplication is also associative, satisfies the unit laws, is commutative, and multiplication distributes over pointwise addition. The proof term for associativity is, however, rather long.
+
+succ-ℕℕ : prod ℕ ℕ → prod ℕ ℕ
+succ-ℕℕ (dpair m n) = pair (succ-ℕ m) n
+
+pred-ℕℕ : prod ℕ ℕ → prod ℕ ℕ
+pred-ℕℕ (dpair m n) = dpair m (succ-ℕ n)
+
+diagonal-step-ℕℕ : prod ℕ ℕ → prod ℕ ℕ
+diagonal-step-ℕℕ (dpair m n) = dpair (succ-ℕ m) (succ-ℕ n)
+
+right-diagonal-step-law-add-ℕℕ : (x y : prod ℕ ℕ) → Id (add-ℕℕ x (diagonal-step-ℕℕ y)) (diagonal-step-ℕℕ (add-ℕℕ x y))
+right-diagonal-step-law-add-ℕℕ (dpair m n) (dpair m' n') = eq-pair-triv _ _ (pair (right-successor-law-add-ℕ m m') (right-successor-law-add-ℕ n n'))
+
+-- Now we establish that the type ℤ is a retract of the type ℕ × ℕ
+
 ℤ-in-ℕℕ : ℤ → prod ℕ ℕ
 ℤ-in-ℕℕ (inl x) = pair zero-ℕ (succ-ℕ x)
 ℤ-in-ℕℕ (inr (inl x)) = pair zero-ℕ zero-ℕ
@@ -388,6 +525,7 @@ is-retraction-ℕℕ-to-ℤ (inr (inl star)) = refl
 is-retraction-ℕℕ-to-ℤ (inr (inr x)) = refl
 
 -- similarly, we have a map from ℕ × ℕ to ℕ × ℕ that does the same thing:
+
 ℕℕ-to-ℕℕ : prod ℕ ℕ → prod ℕ ℕ
 ℕℕ-to-ℕℕ (dpair zero-ℕ n) = dpair zero-ℕ n
 ℕℕ-to-ℕℕ (dpair (succ-ℕ m) zero-ℕ) = dpair (succ-ℕ m) zero-ℕ
@@ -398,55 +536,210 @@ idempotent-ℕℕ-to-ℕℕ (dpair zero-ℕ n) = refl
 idempotent-ℕℕ-to-ℕℕ (dpair (succ-ℕ m) zero-ℕ) = refl 
 idempotent-ℕℕ-to-ℕℕ (dpair (succ-ℕ m) (succ-ℕ n)) = idempotent-ℕℕ-to-ℕℕ (dpair m n)
 
-add-ℕℕ : prod ℕ ℕ → prod ℕ ℕ → prod ℕ ℕ
-add-ℕℕ (dpair m n) (dpair m' n') = dpair (add-ℕ m m') (add-ℕ n n')
-
-zero-ℕℕ : prod ℕ ℕ
-zero-ℕℕ = pair zero-ℕ zero-ℕ
-
-left-unit-law-add-ℕℕ : (x : prod ℕ ℕ) → Id (add-ℕℕ zero-ℕℕ x) x
-left-unit-law-add-ℕℕ (dpair m n) = eq-pair (dpair refl refl)
-
-right-unit-law-add-ℕℕ : (x : prod ℕ ℕ) → Id (add-ℕℕ x zero-ℕℕ) x
-right-unit-law-add-ℕℕ (dpair m n) = eq-pair (dpair (right-unit-law-add-ℕ m) (concat (add-ℕ n zero-ℕ) (tr-triv {B = ℕ} (right-unit-law-add-ℕ m) (add-ℕ n zero-ℕ)) (right-unit-law-add-ℕ n)))
-
-associative-add-ℕℕ : (x y z : prod ℕ ℕ) → Id (add-ℕℕ (add-ℕℕ x y) z) (add-ℕℕ x (add-ℕℕ y z))
-associative-add-ℕℕ (dpair m n) (dpair m' n') (dpair m'' n'') = eq-pair (dpair (associative-add-ℕ m m' m'') (concat (add-ℕ (add-ℕ n n') n'') (tr-triv {B = ℕ} (associative-add-ℕ m m' m'') (add-ℕ (add-ℕ n n') n'')) (associative-add-ℕ n n' n'')))
+preserves-diagonal-step-ℕℕ-to-ℕℕ : (x : prod ℕ ℕ) → Id (ℕℕ-to-ℕℕ (diagonal-step-ℕℕ x)) (ℕℕ-to-ℕℕ x)
+preserves-diagonal-step-ℕℕ-to-ℕℕ (dpair m n) = refl
 
 preserves-addition-ℕℕ-to-ℕℕ : (x y : prod ℕ ℕ) → Id (ℕℕ-to-ℕℕ (add-ℕℕ x y)) (ℕℕ-to-ℕℕ (add-ℕℕ (ℕℕ-to-ℕℕ x) (ℕℕ-to-ℕℕ y)))
 preserves-addition-ℕℕ-to-ℕℕ (dpair zero-ℕ zero-ℕ) (dpair m' n') =
   concat (ℕℕ-to-ℕℕ (ℕℕ-to-ℕℕ (dpair m' n')))
   ( inv (idempotent-ℕℕ-to-ℕℕ (dpair m' n')))
   ( ap ℕℕ-to-ℕℕ (inv (left-unit-law-add-ℕℕ (ℕℕ-to-ℕℕ (dpair m' n')))))
-preserves-addition-ℕℕ-to-ℕℕ (dpair zero-ℕ (succ-ℕ n)) (dpair m' n') = {!!}
-preserves-addition-ℕℕ-to-ℕℕ (dpair (succ-ℕ m) zero-ℕ) (dpair m' n') = {!!}
-preserves-addition-ℕℕ-to-ℕℕ (dpair (succ-ℕ m) (succ-ℕ n)) (dpair m' n') =
-  preserves-addition-ℕℕ-to-ℕℕ (dpair m n) (dpair m' n')
+preserves-addition-ℕℕ-to-ℕℕ (dpair zero-ℕ (succ-ℕ n)) (dpair zero-ℕ n') = refl
+preserves-addition-ℕℕ-to-ℕℕ (dpair zero-ℕ (succ-ℕ n)) (dpair (succ-ℕ m') zero-ℕ) = refl
+preserves-addition-ℕℕ-to-ℕℕ (dpair zero-ℕ (succ-ℕ n)) (dpair (succ-ℕ m') (succ-ℕ n')) =
+  concat
+    ( ℕℕ-to-ℕℕ
+      ( ℕℕ-to-ℕℕ
+        ( add-ℕℕ
+          ( dpair zero-ℕ (succ-ℕ n))
+          ( dpair (succ-ℕ m') (succ-ℕ n')))))
+    ( inv
+      ( idempotent-ℕℕ-to-ℕℕ
+        ( add-ℕℕ
+          ( dpair zero-ℕ (succ-ℕ n))
+          ( dpair (succ-ℕ m') (succ-ℕ n')))))
+    ( concat
+      ( ℕℕ-to-ℕℕ (ℕℕ-to-ℕℕ (diagonal-step-ℕℕ (add-ℕℕ (dpair zero-ℕ (succ-ℕ n)) (dpair m' n')))))
+      ( ap (ℕℕ-to-ℕℕ ∘ ℕℕ-to-ℕℕ) (right-diagonal-step-law-add-ℕℕ (dpair zero-ℕ (succ-ℕ n)) (dpair m' n')))
+      ( concat
+        ( ℕℕ-to-ℕℕ (ℕℕ-to-ℕℕ (add-ℕℕ (ℕℕ-to-ℕℕ (dpair zero-ℕ (succ-ℕ n))) (ℕℕ-to-ℕℕ (dpair m' n')))))
+        ( ap ℕℕ-to-ℕℕ (preserves-addition-ℕℕ-to-ℕℕ (dpair zero-ℕ (succ-ℕ n)) (dpair m' n')))
+        ( idempotent-ℕℕ-to-ℕℕ (add-ℕℕ (ℕℕ-to-ℕℕ (dpair zero-ℕ (succ-ℕ n))) (ℕℕ-to-ℕℕ (dpair m' n'))))))
 
-right-unit-law-add-ℤ : (k : ℤ) → Id (add-ℤ k zero-ℤ) k
-right-unit-law-add-ℤ (inl zero-ℕ) = refl
-right-unit-law-add-ℤ (inl (succ-ℕ x)) = ap pred-ℤ (right-unit-law-add-ℤ (inl x))
-right-unit-law-add-ℤ (inr (inl star)) = refl
-right-unit-law-add-ℤ (inr (inr zero-ℕ)) = refl
-right-unit-law-add-ℤ (inr (inr (succ-ℕ x))) = ap succ-ℤ (right-unit-law-add-ℤ (inr (inr x)))
+ℕℕ-to-ℤ-ℕℕ-to-ℕℕ : (x : prod ℕ ℕ) → Id (ℕℕ-to-ℤ (ℕℕ-to-ℕℕ x)) (ℕℕ-to-ℤ x)
+ℕℕ-to-ℤ-ℕℕ-to-ℕℕ (dpair zero-ℕ zero-ℕ) = refl
+ℕℕ-to-ℤ-ℕℕ-to-ℕℕ (dpair zero-ℕ (succ-ℕ n)) = refl
+ℕℕ-to-ℤ-ℕℕ-to-ℕℕ (dpair (succ-ℕ m) zero-ℕ) = refl
+ℕℕ-to-ℤ-ℕℕ-to-ℕℕ (dpair (succ-ℕ m) (succ-ℕ n)) = ℕℕ-to-ℤ-ℕℕ-to-ℕℕ (dpair m n)
 
-preserves-addition-ℕℕ-to-ℤ : (m m' n n' : ℕ) → Id (ℕℕ-to-ℤ (pair (add-ℕ m m') (add-ℕ n n'))) (add-ℤ (ℕℕ-to-ℤ (pair m n)) (ℕℕ-to-ℤ (pair m' n')))
-preserves-addition-ℕℕ-to-ℤ zero-ℕ zero-ℕ zero-ℕ zero-ℕ = refl
-preserves-addition-ℕℕ-to-ℤ zero-ℕ zero-ℕ zero-ℕ (succ-ℕ n') = refl
-preserves-addition-ℕℕ-to-ℤ zero-ℕ zero-ℕ (succ-ℕ n) zero-ℕ = concat (ℕℕ-to-ℤ (pair zero-ℕ (succ-ℕ n))) (ap (λ t → ℕℕ-to-ℤ (pair zero-ℕ t)) (right-unit-law-add-ℕ (succ-ℕ n))) (inv (right-unit-law-add-ℤ (ℕℕ-to-ℤ (pair zero-ℕ (succ-ℕ n)))))
-preserves-addition-ℕℕ-to-ℤ zero-ℕ zero-ℕ (succ-ℕ zero-ℕ) (succ-ℕ n') = refl
-preserves-addition-ℕℕ-to-ℤ zero-ℕ zero-ℕ (succ-ℕ (succ-ℕ n)) (succ-ℕ n') = {!!}
-preserves-addition-ℕℕ-to-ℤ zero-ℕ (succ-ℕ m') zero-ℕ zero-ℕ = refl
-preserves-addition-ℕℕ-to-ℤ zero-ℕ (succ-ℕ m') zero-ℕ (succ-ℕ n') = refl
-preserves-addition-ℕℕ-to-ℤ zero-ℕ (succ-ℕ m') (succ-ℕ n) zero-ℕ = {!!}
-preserves-addition-ℕℕ-to-ℤ zero-ℕ (succ-ℕ m') (succ-ℕ n) (succ-ℕ n') = {!refl!}
-preserves-addition-ℕℕ-to-ℤ (succ-ℕ m) zero-ℕ zero-ℕ zero-ℕ = {!refl!}
-preserves-addition-ℕℕ-to-ℤ (succ-ℕ m) zero-ℕ zero-ℕ (succ-ℕ n') = {!refl!}
-preserves-addition-ℕℕ-to-ℤ (succ-ℕ m) zero-ℕ (succ-ℕ n) zero-ℕ = {!refl!}
-preserves-addition-ℕℕ-to-ℤ (succ-ℕ m) zero-ℕ (succ-ℕ n) (succ-ℕ n') = {!refl!}
-preserves-addition-ℕℕ-to-ℤ (succ-ℕ m) (succ-ℕ m') zero-ℕ zero-ℕ = {!refl!}
-preserves-addition-ℕℕ-to-ℤ (succ-ℕ m) (succ-ℕ m') zero-ℕ (succ-ℕ n') = {!refl!}
-preserves-addition-ℕℕ-to-ℤ (succ-ℕ m) (succ-ℕ m') (succ-ℕ n) zero-ℕ = {!refl!}
-preserves-addition-ℕℕ-to-ℤ (succ-ℕ m) (succ-ℕ m') (succ-ℕ n) (succ-ℕ n') = {!refl!}
+predecessor-law-ℕℕ-to-ℤ : (x : prod ℕ ℕ) → Id (ℕℕ-to-ℤ (pred-ℕℕ x)) (pred-ℤ (ℕℕ-to-ℤ x))
+predecessor-law-ℕℕ-to-ℤ (dpair zero-ℕ zero-ℕ) = refl
+predecessor-law-ℕℕ-to-ℤ (dpair zero-ℕ (succ-ℕ n)) = refl
+predecessor-law-ℕℕ-to-ℤ (dpair (succ-ℕ zero-ℕ) zero-ℕ) = refl
+predecessor-law-ℕℕ-to-ℤ (dpair (succ-ℕ (succ-ℕ m)) zero-ℕ) = refl
+predecessor-law-ℕℕ-to-ℤ (dpair (succ-ℕ m) (succ-ℕ n)) = predecessor-law-ℕℕ-to-ℤ (dpair m n)
+
+preserves-addition-ℕℕ-to-ℤ' : (x y : prod ℕ ℕ) → Id (ℕℕ-to-ℤ (add-ℕℕ (ℕℕ-to-ℕℕ x) (ℕℕ-to-ℕℕ y))) (add-ℤ (ℕℕ-to-ℤ x) (ℕℕ-to-ℤ y))
+preserves-addition-ℕℕ-to-ℤ' (dpair zero-ℕ zero-ℕ) (dpair zero-ℕ zero-ℕ) = refl
+preserves-addition-ℕℕ-to-ℤ' (dpair zero-ℕ zero-ℕ) (dpair zero-ℕ (succ-ℕ n')) = refl
+preserves-addition-ℕℕ-to-ℤ' (dpair zero-ℕ zero-ℕ) (dpair (succ-ℕ m') zero-ℕ) = refl
+preserves-addition-ℕℕ-to-ℤ' (dpair zero-ℕ zero-ℕ) (dpair (succ-ℕ m') (succ-ℕ n')) = preserves-addition-ℕℕ-to-ℤ' (dpair zero-ℕ zero-ℕ) (dpair m' n')
+preserves-addition-ℕℕ-to-ℤ' (dpair zero-ℕ (succ-ℕ n)) (dpair zero-ℕ zero-ℕ) =
+  concat
+    ( ℕℕ-to-ℤ (dpair zero-ℕ (succ-ℕ n)))
+    ( ap ℕℕ-to-ℤ
+      ( eq-pair-triv
+        ( dpair zero-ℕ (add-ℕ (succ-ℕ n) zero-ℕ))
+        ( dpair zero-ℕ (succ-ℕ n))
+        ( pair refl (right-unit-law-add-ℕ (succ-ℕ n)))))
+    ( inv (right-unit-law-add-ℤ (ℕℕ-to-ℤ (dpair zero-ℕ (succ-ℕ n)))))
+preserves-addition-ℕℕ-to-ℤ' (dpair zero-ℕ (succ-ℕ n)) (dpair zero-ℕ (succ-ℕ n')) = concat (ℕℕ-to-ℤ (dpair zero-ℕ (succ-ℕ (add-ℕ (succ-ℕ n) n')))) (ap ℕℕ-to-ℤ (eq-pair-triv (dpair zero-ℕ (add-ℕ (succ-ℕ n) (succ-ℕ n'))) (dpair zero-ℕ (succ-ℕ (add-ℕ (succ-ℕ n) n'))) (pair refl (right-successor-law-add-ℕ (succ-ℕ n) n')))) (concat (pred-ℤ (ℕℕ-to-ℤ (dpair zero-ℕ (add-ℕ (succ-ℕ n) n')))) (predecessor-law-ℕℕ-to-ℤ (dpair zero-ℕ (add-ℕ (succ-ℕ n) n'))) (concat (pred-ℤ (add-ℤ (ℕℕ-to-ℤ (dpair zero-ℕ (succ-ℕ n))) (ℕℕ-to-ℤ (dpair zero-ℕ n')))) (ap pred-ℤ (preserves-addition-ℕℕ-to-ℤ' (dpair zero-ℕ (succ-ℕ n)) (dpair zero-ℕ n'))) {!!}))
+preserves-addition-ℕℕ-to-ℤ' (dpair zero-ℕ (succ-ℕ n)) (dpair (succ-ℕ m') zero-ℕ) = {!refl!}
+preserves-addition-ℕℕ-to-ℤ' (dpair zero-ℕ (succ-ℕ n)) (dpair (succ-ℕ m') (succ-ℕ n')) = {!refl!}
+preserves-addition-ℕℕ-to-ℤ' (dpair (succ-ℕ m) zero-ℕ) (dpair zero-ℕ zero-ℕ) = {!refl!}
+preserves-addition-ℕℕ-to-ℤ' (dpair (succ-ℕ m) zero-ℕ) (dpair zero-ℕ (succ-ℕ n')) = {!refl!}
+preserves-addition-ℕℕ-to-ℤ' (dpair (succ-ℕ m) zero-ℕ) (dpair (succ-ℕ m') zero-ℕ) = {!!}
+preserves-addition-ℕℕ-to-ℤ' (dpair (succ-ℕ m) zero-ℕ) (dpair (succ-ℕ m') (succ-ℕ n')) = {!!}
+preserves-addition-ℕℕ-to-ℤ' (dpair (succ-ℕ m) (succ-ℕ n)) (dpair zero-ℕ zero-ℕ) = {!!}
+preserves-addition-ℕℕ-to-ℤ' (dpair (succ-ℕ m) (succ-ℕ n)) (dpair zero-ℕ (succ-ℕ n')) = {!!}
+preserves-addition-ℕℕ-to-ℤ' (dpair (succ-ℕ m) (succ-ℕ n)) (dpair (succ-ℕ m') zero-ℕ) = {!!}
+preserves-addition-ℕℕ-to-ℤ' (dpair (succ-ℕ m) (succ-ℕ n)) (dpair (succ-ℕ m') (succ-ℕ n')) = {!!}
+
+preserves-addition-ℕℕ-to-ℤ : (x y : prod ℕ ℕ) → Id (ℕℕ-to-ℤ (add-ℕℕ x y)) (add-ℤ (ℕℕ-to-ℤ x) (ℕℕ-to-ℤ y))
+preserves-addition-ℕℕ-to-ℤ x y = concat (ℕℕ-to-ℤ (ℕℕ-to-ℕℕ (add-ℕℕ x y))) (inv (ℕℕ-to-ℤ-ℕℕ-to-ℕℕ (add-ℕℕ x y))) (concat (ℕℕ-to-ℤ (ℕℕ-to-ℕℕ (add-ℕℕ (ℕℕ-to-ℕℕ x) (ℕℕ-to-ℕℕ y)))) (ap ℕℕ-to-ℤ (preserves-addition-ℕℕ-to-ℕℕ x y)) (concat (ℕℕ-to-ℤ (add-ℕℕ (ℕℕ-to-ℕℕ x) (ℕℕ-to-ℕℕ y))) (ℕℕ-to-ℤ-ℕℕ-to-ℕℕ (add-ℕℕ (ℕℕ-to-ℕℕ x) (ℕℕ-to-ℕℕ y))) {!!}) )
+
+
+{-
+associative-mul-ℕℕ : (x y z : prod ℕ ℕ) → Id (mul-ℕℕ (mul-ℕℕ x y) z) (mul-ℕℕ x (mul-ℕℕ y z))
+associative-mul-ℕℕ (dpair m n) (dpair m' n') (dpair m'' n'') =
+  eq-pair-triv
+    ( pair
+      ( add-ℕ
+        ( mul-ℕ (add-ℕ (mul-ℕ m m') (mul-ℕ n n')) m'')
+        ( mul-ℕ (add-ℕ (mul-ℕ m n') (mul-ℕ n m')) n''))
+      ( add-ℕ
+        ( mul-ℕ (add-ℕ (mul-ℕ m m') (mul-ℕ n n')) n'')
+        ( mul-ℕ (add-ℕ (mul-ℕ m n') (mul-ℕ n m')) m'')))
+    ( pair
+      ( add-ℕ
+        ( mul-ℕ m (add-ℕ (mul-ℕ m' m'') (mul-ℕ n' n'')))
+        ( mul-ℕ n (add-ℕ (mul-ℕ m' n'') (mul-ℕ n' m''))))
+      ( add-ℕ
+        ( mul-ℕ m (add-ℕ (mul-ℕ m' n'') (mul-ℕ n' m'')))
+        ( mul-ℕ n (add-ℕ (mul-ℕ m' m'') (mul-ℕ n' n'')))))
+    ( pair
+      ( concat
+        ( add-ℕ
+          ( add-ℕ
+            ( mul-ℕ (mul-ℕ m m') m'')
+            ( mul-ℕ (mul-ℕ n n') m''))
+          ( mul-ℕ (add-ℕ (mul-ℕ m n') (mul-ℕ n m')) n''))
+        ( ap
+          ( λ t → add-ℕ t (mul-ℕ (add-ℕ (mul-ℕ m n') (mul-ℕ n m')) n''))
+          ( right-distributive-mul-add-ℕ (mul-ℕ m m') (mul-ℕ n n') m''))
+        ( concat
+          ( add-ℕ
+            ( add-ℕ
+              ( mul-ℕ (mul-ℕ m m') m'')
+              ( mul-ℕ (mul-ℕ n n') m''))
+            ( add-ℕ
+              ( mul-ℕ (mul-ℕ m n') n'')
+              ( mul-ℕ (mul-ℕ n m') n'')))
+          ( ap
+            ( λ t → add-ℕ
+              ( add-ℕ (mul-ℕ (mul-ℕ m m') m'') (mul-ℕ (mul-ℕ n n') m'')) t)
+            ( right-distributive-mul-add-ℕ (mul-ℕ m n') (mul-ℕ n m') n''))
+          ( concat
+            ( add-ℕ
+              ( mul-ℕ (mul-ℕ m m') m'')
+              ( add-ℕ
+                ( mul-ℕ (mul-ℕ n n') m'')
+                ( add-ℕ
+                  ( mul-ℕ (mul-ℕ m n') n'')
+                  ( mul-ℕ (mul-ℕ n m') n''))))
+            ( associative-add-ℕ
+              ( mul-ℕ (mul-ℕ m m') m'')
+              ( mul-ℕ (mul-ℕ n n') m'')
+              ( add-ℕ
+                  ( mul-ℕ (mul-ℕ m n') n'')
+                  ( mul-ℕ (mul-ℕ n m') n'')))
+            ( concat
+              ( add-ℕ
+                ( mul-ℕ m (mul-ℕ m' m''))
+                ( add-ℕ
+                  ( mul-ℕ (mul-ℕ n n') m'')
+                  ( add-ℕ
+                    ( mul-ℕ (mul-ℕ m n') n'')
+                    ( mul-ℕ (mul-ℕ n m') n''))))
+              ( ap
+                ( λ t → add-ℕ t
+                  ( add-ℕ
+                    ( mul-ℕ (mul-ℕ n n') m'')
+                    ( add-ℕ
+                      ( mul-ℕ (mul-ℕ m n') n'')
+                      ( mul-ℕ (mul-ℕ n m') n''))))
+                ( associative-mul-ℕ m m' m''))
+              ( concat
+                ( add-ℕ
+                  ( add-ℕ
+                    ( mul-ℕ m (mul-ℕ m' m''))
+                    ( mul-ℕ m (mul-ℕ n' n'')))
+                  ( mul-ℕ n (add-ℕ (mul-ℕ m' n'') (mul-ℕ n' m''))))
+                ( concat
+                  ( add-ℕ
+                    ( mul-ℕ m (mul-ℕ m' m''))
+                    ( add-ℕ
+                      ( mul-ℕ m (mul-ℕ n' n''))
+                      ( mul-ℕ n (add-ℕ (mul-ℕ m' n'') (mul-ℕ n' m'')))))
+                  ( ap
+                    ( λ t → add-ℕ (mul-ℕ m (mul-ℕ m' m'')) t)
+                    ( concat
+                      ( add-ℕ
+                        ( mul-ℕ m (mul-ℕ n' n''))
+                        ( add-ℕ
+                          ( mul-ℕ n (mul-ℕ m' n''))
+                          ( mul-ℕ n (mul-ℕ n' m''))))
+                      ( concat
+                        ( add-ℕ
+                          ( add-ℕ
+                            ( mul-ℕ n (mul-ℕ m' n''))
+                            ( mul-ℕ n (mul-ℕ n' m'')))
+                          ( mul-ℕ m (mul-ℕ n' n'')))
+                        ( concat
+                          ( add-ℕ
+                            ( add-ℕ
+                              ( mul-ℕ (mul-ℕ n m') n'')
+                              ( mul-ℕ n (mul-ℕ n' m'')))
+                            ( mul-ℕ m (mul-ℕ n' n'')))
+                          {!!}
+                          ( ap
+                            ( λ t → add-ℕ
+                              ( add-ℕ t ( mul-ℕ n (mul-ℕ n' m'')))
+                              ( mul-ℕ m (mul-ℕ n' n'')))
+                            ( associative-mul-ℕ n m' n'')))
+                          {!!})
+                      ( inv
+                        ( ap
+                          ( λ t → add-ℕ (mul-ℕ m (mul-ℕ n' n'')) t)
+                          ( left-distributive-mul-add-ℕ
+                            n
+                            (mul-ℕ m' n'')
+                            (mul-ℕ n' m''))))))
+                  ( inv
+                    ( associative-add-ℕ
+                      ( mul-ℕ m (mul-ℕ m' m''))
+                      ( mul-ℕ m (mul-ℕ n' n''))
+                      ( mul-ℕ n (add-ℕ (mul-ℕ m' n'') (mul-ℕ n' m''))))))
+                ( ap
+                  ( λ t → add-ℕ t
+                    ( mul-ℕ n (add-ℕ (mul-ℕ m' n'') (mul-ℕ n' m''))))
+                  ( inv
+                    ( left-distributive-mul-add-ℕ
+                      m
+                      (mul-ℕ m' m'')
+                      (mul-ℕ n' n'')))))))))
+      {!!})
+-}
+-}
 
 \end{code}
