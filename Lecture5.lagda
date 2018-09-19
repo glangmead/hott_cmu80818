@@ -407,24 +407,49 @@ right-unit-law-add-ℤ (inr (inr (succ-ℕ x))) = ap succ-ℤ (right-unit-law-ad
 left-predecessor-law-add-ℤ : (x y : ℤ) → Id (add-ℤ (pred-ℤ x) y) (pred-ℤ (add-ℤ x y))
 left-predecessor-law-add-ℤ (inl n) y = refl
 left-predecessor-law-add-ℤ (inr (inl star)) y = refl
-left-predecessor-law-add-ℤ (inr (inr zero-ℕ)) y = concat y (ap (λ t → add-ℤ t y) (left-inverse-pred-ℤ zero-ℤ)) (inv (left-inverse-pred-ℤ y))
-left-predecessor-law-add-ℤ (inr (inr (succ-ℕ x))) y = concat (add-ℤ (inr (inr x)) y) (ap (λ t → (add-ℤ t y)) (left-inverse-pred-ℤ (inr (inr x)))) (inv (left-inverse-pred-ℤ (add-ℤ (inr (inr x)) y)))
+left-predecessor-law-add-ℤ (inr (inr zero-ℕ)) y =
+  concat
+    ( y)
+    ( ap (λ t → add-ℤ t y) (left-inverse-pred-ℤ zero-ℤ))
+    ( inv (left-inverse-pred-ℤ y))
+left-predecessor-law-add-ℤ (inr (inr (succ-ℕ x))) y =
+  concat
+    ( add-ℤ (inr (inr x)) y)
+    ( ap (λ t → (add-ℤ t y)) (left-inverse-pred-ℤ (inr (inr x))))
+    ( inv (left-inverse-pred-ℤ (add-ℤ (inr (inr x)) y)))
 
 right-predecessor-law-add-ℤ : (x y : ℤ) → Id (add-ℤ x (pred-ℤ y)) (pred-ℤ (add-ℤ x y))
 right-predecessor-law-add-ℤ (inl zero-ℕ) n = refl
 right-predecessor-law-add-ℤ (inl (succ-ℕ m)) n = ap pred-ℤ (right-predecessor-law-add-ℤ (inl m) n)
 right-predecessor-law-add-ℤ (inr (inl star)) n = refl
-right-predecessor-law-add-ℤ (inr (inr zero-ℕ)) n = concat n (right-inverse-pred-ℤ n) (inv (left-inverse-pred-ℤ n))
-right-predecessor-law-add-ℤ (inr (inr (succ-ℕ x))) n = concat (succ-ℤ (pred-ℤ (add-ℤ (inr (inr x)) n))) (ap succ-ℤ (right-predecessor-law-add-ℤ (inr (inr x)) n)) (concat (add-ℤ (inr (inr x)) n) (right-inverse-pred-ℤ (add-ℤ (inr (inr x)) n)) (inv (left-inverse-pred-ℤ (add-ℤ (inr (inr x)) n))))
+right-predecessor-law-add-ℤ (inr (inr zero-ℕ)) n =
+  concat n (right-inverse-pred-ℤ n) (inv (left-inverse-pred-ℤ n))
+right-predecessor-law-add-ℤ (inr (inr (succ-ℕ x))) n =
+  concat
+    ( succ-ℤ (pred-ℤ (add-ℤ (inr (inr x)) n)))
+    ( ap succ-ℤ (right-predecessor-law-add-ℤ (inr (inr x)) n))
+    ( concat
+      ( add-ℤ (inr (inr x)) n)
+      ( right-inverse-pred-ℤ (add-ℤ (inr (inr x)) n))
+      ( inv (left-inverse-pred-ℤ (add-ℤ (inr (inr x)) n))))
 
 left-successor-law-add-ℤ : (x y : ℤ) → Id (add-ℤ (succ-ℤ x) y) (succ-ℤ (add-ℤ x y))
-left-successor-law-add-ℤ (inl zero-ℕ) y = concat y (ap (λ t → add-ℤ t y) (right-inverse-pred-ℤ zero-ℤ)) (inv (right-inverse-pred-ℤ y))
-left-successor-law-add-ℤ (inl (succ-ℕ x)) y = concat (succ-ℤ (pred-ℤ (add-ℤ (inl x) y))) (inv (right-inverse-pred-ℤ (add-ℤ (inl x) y))) (ap succ-ℤ (inv (left-predecessor-law-add-ℤ (inl x) y)))
+left-successor-law-add-ℤ (inl zero-ℕ) y =
+  concat
+    ( y)
+    ( ap (λ t → add-ℤ t y) (right-inverse-pred-ℤ zero-ℤ))
+    ( inv (right-inverse-pred-ℤ y))
+left-successor-law-add-ℤ (inl (succ-ℕ x)) y =
+  concat
+    ( succ-ℤ (pred-ℤ (add-ℤ (inl x) y)))
+    ( inv (right-inverse-pred-ℤ (add-ℤ (inl x) y)))
+    ( ap succ-ℤ (inv (left-predecessor-law-add-ℤ (inl x) y)))
 left-successor-law-add-ℤ (inr (inl star)) y = refl
 left-successor-law-add-ℤ (inr (inr x)) y = refl
 
 right-successor-law-add-ℤ : (x y : ℤ) → Id (add-ℤ x (succ-ℤ y)) (succ-ℤ (add-ℤ x y))
-right-successor-law-add-ℤ (inl zero-ℕ) y = concat y (left-inverse-pred-ℤ y) (inv (right-inverse-pred-ℤ y))
+right-successor-law-add-ℤ (inl zero-ℕ) y =
+  concat y (left-inverse-pred-ℤ y) (inv (right-inverse-pred-ℤ y))
 right-successor-law-add-ℤ (inl (succ-ℕ x)) y =
   concat
     ( pred-ℤ (succ-ℤ (add-ℤ (inl x) y)))
