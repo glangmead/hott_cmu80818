@@ -127,4 +127,13 @@ id-fundamental-retr {_} {_} {A} {B} a i R =
         (is-contr-total-path _ a))
       (is-contr-total-path _ a))
 
+-- Exercise 7.12
+
+coherence-reduction-map : {i j : Level} {A : UU i} {B : A → UU j} (a : A) (α : (x : A) → B x → Id a x) →
+  (Σ (B a) (λ b → Id (α a b) refl)) → Σ A B
+coherence-reduction-map a α (dpair b p) = dpair a b
+
+is-contr-coherence-reduction-map : {i j : Level} {A : UU i} {B : A → UU j} (a : A) (α : (x : A) → B x → Id a x) → is-contr-map (coherence-reduction-map a α)
+is-contr-coherence-reduction-map a α (dpair x y) = {!!}
+
 \end{code}
