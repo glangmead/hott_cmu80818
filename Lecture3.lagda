@@ -1,6 +1,6 @@
 \begin{code}
 
-{-# OPTIONS --without-K #-}
+{-# OPTIONS --without-K --allow-unsolved-metas #-}
 
 module Lecture3 where
 
@@ -59,7 +59,7 @@ pair a b = dpair a b
 -- Pointed types
 U-pt : Type
 U-pt = Sigma U (λ X → X)
-
+ 
 -- Graphs
 Gph : Type
 Gph = Sigma U (λ X → (X → X → U))
@@ -114,15 +114,15 @@ ind-ℤ P p-1 p-S p0 p1 pS (inr (inr (succ-ℕ x))) = pS x (ind-ℤ P p-1 p-S p0
 succ-ℤ : ℤ → ℤ
 succ-ℤ (inl zero-ℕ) = zero-ℤ
 succ-ℤ (inl (succ-ℕ x)) = inl x
-succ-ℤ (inr (inl x)) = one-ℤ
+succ-ℤ (inr (inl star)) = one-ℤ
 succ-ℤ (inr (inr x)) = inr (inr (succ-ℕ x))
 
 -- Exercise 3.1
 -- In this exercise we were asked to show that (A + ¬A) implies (¬¬A → A).
 -- In other words, we get double negation elimination for the types that are decidable
 dne-dec : {i : Level} (A : UU i) → (coprod A (¬ A)) → (¬ (¬ A) → A)
-dne-dec A (inl x) = λ t → x
-dne-dec A (inr x) = λ f → ind-empty (f x)
+dne-dec A (inl x) p = x
+dne-dec A (inr x) p = ind-empty (p x)
 
 -- Exercise 3.3
 -- In this exercise we were asked to show that the observational equality on ℕ is an equivalence relation.

@@ -1,6 +1,6 @@
 \begin{code}
 
-{-# OPTIONS --without-K #-}
+{-# OPTIONS --without-K --allow-unsolved-metas #-}
 
 module Lecture6 where
 

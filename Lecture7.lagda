@@ -1,6 +1,6 @@
 \begin{code}
 
-{-# OPTIONS --without-K #-}
+{-# OPTIONS --without-K --allow-unsolved-metas #-}
 
 module Lecture7 where
 
@@ -33,11 +33,14 @@ is-equiv-fib-ftr-fib-tot f t =
     (dpair (fib-tot-fib-ftr f t) (isretr-fib-tot-fib-ftr f t))
 
 -- Any fiberwise equivalence induces an equivalence on total spaces
-is-equiv-tot-is-equiv-ftr :
+is-fiberwise-equiv : {i j k : Level} {A : UU i} {B : A → UU j} {C : A → UU k} → ((x : A) → B x → C x) → UU (i ⊔ (j ⊔ k))
+is-fiberwise-equiv f = (x : _) → is-equiv (f x)
+
+is-equiv-tot-is-fiberwise-equiv :
   {i j k : Level} {A : UU i} {B : A → UU j} {C : A → UU k} →
-  (f : (x : A) → B x → C x) → ((x : A) → is-equiv (f x)) →
+  (f : (x : A) → B x → C x) → is-fiberwise-equiv f →
   is-equiv (tot f )
-is-equiv-tot-is-equiv-ftr f H =
+is-equiv-tot-is-fiberwise-equiv f H =
   is-equiv-is-contr-map
     (λ t → is-contr-is-equiv
       (fib-ftr-fib-tot f t)
@@ -45,11 +48,11 @@ is-equiv-tot-is-equiv-ftr f H =
       (is-contr-map-is-equiv (H _) (pr2 t)))
 
 -- Convesely, any fiberwise transformation that induces an equivalence on total spaces is a fiberwise equivalence.
-is-equiv-ftr-is-equiv-tot :
+is-fiberwise-equiv-is-equiv-tot :
   {i j k : Level} {A : UU i} {B : A → UU j} {C : A → UU k} →
   (f : (x : A) → B x → C x) → is-equiv (tot f) →
-  (x : A) → is-equiv (f x)
-is-equiv-ftr-is-equiv-tot f H x =
+  is-fiberwise-equiv f
+is-fiberwise-equiv-is-equiv-tot f H x =
   is-equiv-is-contr-map
     (λ z → is-contr-is-equiv'
       (fib-ftr-fib-tot f (dpair x z))
@@ -59,25 +62,24 @@ is-equiv-ftr-is-equiv-tot f H x =
 -- Section 7.2 The fundamental theorem
 
 -- The general form of the fundamental theorem of identity types
-id-fundamental-gen : {i j : Level} {A : UU i} {B : A → UU j} (a : A) (b : B a) → is-contr (Σ A B) → (f : (x : A) → Id a x → B x) → (x : A) → is-equiv (f x)
+id-fundamental-gen : {i j : Level} {A : UU i} {B : A → UU j} (a : A) (b : B a) → is-contr (Σ A B) → (f : (x : A) → Id a x → B x) → is-fiberwise-equiv f
 id-fundamental-gen {_} {_} {A} {B} a b C f x =
-  is-equiv-ftr-is-equiv-tot f
+  is-fiberwise-equiv-is-equiv-tot f
     (is-equiv-is-contr _ (is-contr-total-path A a) C) x
 
 -- The canonical form of the fundamental theorem of identity types
 id-fundamental : {i j : Level} {A : UU i} {B : A → UU j} (a : A) (b : B a) →
-  is-contr (Σ A B) →
-  (x : A) → is-equiv (ind-Id a (λ x p → B x) b x)
+  is-contr (Σ A B) → is-fiberwise-equiv (ind-Id a (λ x p → B x) b)
 id-fundamental {i} {j} {A} {B} a b H =
   id-fundamental-gen a b H (ind-Id a (λ x p → B x) b)
 
 -- The converse of the fundamental theorem of identity types
 id-fundamental' : {i j : Level} {A : UU i} {B : A → UU j} (a : A) (b : B a) →
-  ((x : A) → is-equiv (ind-Id a (λ x p → B x) b x)) → is-contr (Σ A B)
+  (is-fiberwise-equiv (ind-Id a (λ x p → B x) b)) → is-contr (Σ A B)
 id-fundamental' {i} {j} {A} {B} a b H =
   is-contr-is-equiv'
     (tot (ind-Id a (λ x p → B x) b))
-    (is-equiv-tot-is-equiv-ftr _ H)
+    (is-equiv-tot-is-fiberwise-equiv _ H)
     (is-contr-total-path A a)
 
 -- As an application we show that equivalences are embeddings.
@@ -88,7 +90,7 @@ is-emb-is-equiv : {i j : Level} {A : UU i} {B : UU j} (f : A → B) → is-equiv
 is-emb-is-equiv {i} {j} {A} {B} f E x =
   id-fundamental-gen x refl
     (is-contr-is-equiv' (tot (λ y (p : Id (f y) (f x)) → inv p))
-        (is-equiv-tot-is-equiv-ftr _ (λ y → is-equiv-inv (f y) (f x)))
+        (is-equiv-tot-is-fiberwise-equiv _ (λ y → is-equiv-inv (f y) (f x)))
       (is-contr-map-is-equiv E (f x)))
     (λ y p → ap f p)
 
@@ -108,12 +110,22 @@ tot-comp : {i j j' j'' : Level} {A : UU i} {B : A → UU j} {B' : A → UU j'} {
   tot (λ x → (g x) ∘ (f x)) ~ ((tot g) ∘ (tot f))
 tot-comp f g (dpair x y) = refl
 
+-- Exercise 7.2
+fib' : {i j : Level} {A : UU i} {B : UU j} → (A → B) → B → UU (i ⊔ j)
+fib' f y = Σ _ (λ x → Id y (f x))
+
+fib'-fib : {i j : Level} {A : UU i} {B : UU j} (f : A → B) (y : B) → fib f y → fib' f y
+fib'-fib f y t = tot (λ x → inv) t
+
+is-equiv-fib'-fib : {i j : Level} {A : UU i} {B : UU j} (f : A → B) (y : B) → is-equiv (fib'-fib f y)
+is-equiv-fib'-fib f y = is-equiv-tot-is-fiberwise-equiv (λ x → inv) (λ x → is-equiv-inv (f x) y)
+
 -- Exercise 7.7
 id-fundamental-retr : {i j : Level} {A : UU i} {B : A → UU j} (a : A) →
   (i : (x : A) → B x → Id a x) → (R : (x : A) → retr (i x)) →
   (x : A) → is-equiv (i x)
 id-fundamental-retr {_} {_} {A} {B} a i R =
-  is-equiv-ftr-is-equiv-tot i
+  is-fiberwise-equiv-is-equiv-tot i
     (is-equiv-is-contr (tot i)
       (is-contr-retract-of (Σ _ (λ y → Id a y))
         (dpair (tot i)

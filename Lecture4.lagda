@@ -1,6 +1,6 @@
 \begin{code}
 
-{-# OPTIONS --without-K #-}
+{-# OPTIONS --without-K --allow-unsolved-metas #-}
 
 module Lecture4 where
 
@@ -94,7 +94,8 @@ con-inv refl refl _ refl = refl
 
 -- Exercise 4.6
 lift : {i j : Level} {A : UU i} {B : A → UU j} {x y : A} (p : Id x y) (b : B x) → Id (dpair x b) (dpair y (tr B p b))
-lift refl b = refl
+lift p b = {!!}
+-- lift refl b = refl
 
 -- Exercise 4.7
 associative-add-ℕ : (x y z : ℕ) → Id (add-ℕ (add-ℕ x y) z) (add-ℕ x (add-ℕ y z))
