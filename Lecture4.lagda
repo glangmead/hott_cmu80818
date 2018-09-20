@@ -78,12 +78,12 @@ apd-triv : {i j : Level} {A : UU i} {B : UU j} (f : A → B) {x y : A} (p : Id x
 apd-triv f refl = refl
 
 -- Exercise 4.4
-tr-fib : {i j : Level} {A : UU i} {B : UU j} {f : A → B} {x y : A} (p : Id x y) (b : B) →
+tr-id-left-subst : {i j : Level} {A : UU i} {B : UU j} {f : A → B} {x y : A} (p : Id x y) (b : B) →
   (q : Id (f x) b) → Id (tr (λ (a : A) → Id (f a) b) p q) (concat _ (inv (ap f p)) q)
-tr-fib refl b q = refl
+tr-id-left-subst refl b q = refl
 
-tr-fib' : {i j : Level} {A : UU i} {B : UU j} {f : A → B} {x y : A} (p : Id x y) (b : B) → (q : Id b (f x)) → Id (tr (λ (a : A) → Id b (f a)) p q) (concat _ q (ap f p))
-tr-fib' refl b q = inv (right-unit q)
+tr-id-right-subst : {i j : Level} {A : UU i} {B : UU j} {f : A → B} {x y : A} (p : Id x y) (b : B) → (q : Id b (f x)) → Id (tr (λ (a : A) → Id b (f a)) p q) (concat _ q (ap f p))
+tr-id-right-subst refl b q = inv (right-unit q)
 
 -- Exercise 4.5
 inv-con : {i : Level} {A : UU i} {x y : A} (p : Id x y) {z : A} (q : Id y z) (r : Id x z) → (Id (concat _ p q) r) → Id q (concat _ (inv p) r)

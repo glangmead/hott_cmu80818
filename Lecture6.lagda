@@ -160,7 +160,7 @@ contraction-is-invertible {i} {j} {A} {B} {f}
   eq-pair (dpair
     (isretr x)
     (concat _
-      (tr-fib (isretr x) (f x)
+      (tr-id-left-subst (isretr x) (f x)
         (pr2 (center-is-invertible
           (dpair g (dpair issec isretr))
           (f x))))

@@ -47,7 +47,7 @@ is-equiv-tot-is-fiberwise-equiv f H =
       (is-equiv-fib-ftr-fib-tot f t)
       (is-contr-map-is-equiv (H _) (pr2 t)))
 
--- Convesely, any fiberwise transformation that induces an equivalence on total spaces is a fiberwise equivalence.
+-- Conversely, any fiberwise transformation that induces an equivalence on total spaces is a fiberwise equivalence.
 is-fiberwise-equiv-is-equiv-tot :
   {i j k : Level} {A : UU i} {B : A → UU j} {C : A → UU k} →
   (f : (x : A) → B x → C x) → is-equiv (tot f) →
@@ -119,6 +119,41 @@ fib'-fib f y t = tot (λ x → inv) t
 
 is-equiv-fib'-fib : {i j : Level} {A : UU i} {B : UU j} (f : A → B) (y : B) → is-equiv (fib'-fib f y)
 is-equiv-fib'-fib f y = is-equiv-tot-is-fiberwise-equiv (λ x → inv) (λ x → is-equiv-inv (f x) y)
+
+-- Exercise 7.3
+fib-triangle : {i j k : Level} {X : UU i} {A : UU j} {B : UU k} (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) (x : X) → (fib f x) → (fib g x)
+fib-triangle f g h H .(f a) (dpair a refl) = dpair (h a) (inv (H a))
+
+tr-fiber : {i j : Level} {A : UU i} {B : UU j} (f : A → B) {x y : B} (p : Id x y) (a : A) (q : Id (f a) x) → Id (tr (fib f) p (dpair a q)) (dpair a (concat x q p))
+tr-fiber f refl a refl = refl
+
+square-tot-fib-triangle : {i j k : Level} {X : UU i} {A : UU j} {B : UU k} (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) → ((tot (fib-triangle f g h H)) ∘ (domain-to-fiber f)) ~ ((domain-to-fiber g) ∘ h)
+square-tot-fib-triangle f g h H a =
+  eq-pair
+    ( dpair
+      ( H a)
+      ( concat
+        ( dpair (h a) (concat _ (inv (H a)) (H a)))
+        ( tr-fiber g (H a) (h a) (inv (H a)))
+        ( eq-pair (dpair refl (left-inv (H a))))))
+
+is-fiberwise-equiv-fib-triangle-equiv : {i j k : Level} {X : UU i} {A : UU j} {B : UU k} (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) → (E : is-equiv h) → is-fiberwise-equiv (fib-triangle f g h H)
+is-fiberwise-equiv-fib-triangle-equiv f g h H E =
+  is-fiberwise-equiv-is-equiv-tot
+    ( fib-triangle f g h H)
+    ( is-equiv-left-factor
+      ( (domain-to-fiber g) ∘ h)
+      ( tot (fib-triangle f g h H))
+      ( domain-to-fiber f)
+      ( htpy-inv (square-tot-fib-triangle f g h H))
+      ( is-equiv-comp
+        ( (domain-to-fiber g) ∘ h)
+        ( domain-to-fiber g)
+        ( h)
+        ( htpy-refl _)
+        ( E)
+        (is-equiv-domain-to-fiber g))
+      ( is-equiv-domain-to-fiber f))
 
 -- Exercise 7.7
 id-fundamental-retr : {i j : Level} {A : UU i} {B : A → UU j} (a : A) →
