@@ -106,7 +106,9 @@ tot-id : {i j : Level} {A : UU i} (B : A → UU j) →
   (tot (λ x (y : B x) → y)) ~ id
 tot-id B (dpair x y) = refl
 
-tot-comp : {i j j' j'' : Level} {A : UU i} {B : A → UU j} {B' : A → UU j'} {B'' : A → UU j''} (f : (x : A) → B x → B' x) (g : (x : A) → B' x → B'' x) →
+tot-comp : {i j j' j'' : Level}
+  {A : UU i} {B : A → UU j} {B' : A → UU j'} {B'' : A → UU j''}
+  (f : (x : A) → B x → B' x) (g : (x : A) → B' x → B'' x) →
   tot (λ x → (g x) ∘ (f x)) ~ ((tot g) ∘ (tot f))
 tot-comp f g (dpair x y) = refl
 
@@ -114,73 +116,104 @@ tot-comp f g (dpair x y) = refl
 fib' : {i j : Level} {A : UU i} {B : UU j} → (A → B) → B → UU (i ⊔ j)
 fib' f y = Σ _ (λ x → Id y (f x))
 
-fib'-fib : {i j : Level} {A : UU i} {B : UU j} (f : A → B) (y : B) → fib f y → fib' f y
+fib'-fib : {i j : Level} {A : UU i} {B : UU j} (f : A → B) (y : B) →
+  fib f y → fib' f y
 fib'-fib f y t = tot (λ x → inv) t
 
-is-equiv-fib'-fib : {i j : Level} {A : UU i} {B : UU j} (f : A → B) (y : B) → is-equiv (fib'-fib f y)
-is-equiv-fib'-fib f y = is-equiv-tot-is-fiberwise-equiv (λ x → inv) (λ x → is-equiv-inv (f x) y)
+is-equiv-fib'-fib : {i j : Level} {A : UU i} {B : UU j}
+  (f : A → B) → is-fiberwise-equiv (fib'-fib f)
+is-equiv-fib'-fib f y =
+  is-equiv-tot-is-fiberwise-equiv (λ x → inv) (λ x → is-equiv-inv (f x) y)
 
 -- Exercise 7.3
-fib-triangle : {i j k : Level} {X : UU i} {A : UU j} {B : UU k} (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) (x : X) → (fib f x) → (fib g x)
+is-equiv-top-is-equiv-bottom-square :
+  {i j k l : Level} {A : UU i} {B : UU j} {C : UU k} {D : UU l}
+  (f : A → B) (g : C → D) (h : A → C) (i : B → D) (H : (i ∘ f) ~ (g ∘ h)) →
+  (is-equiv f) → (is-equiv g) → (is-equiv i) → (is-equiv h)
+is-equiv-top-is-equiv-bottom-square f g h i H Ef Eg Ei =
+  is-equiv-right-factor (i ∘ f) g h H Eg
+    (is-equiv-comp (i ∘ f) i f (htpy-refl _) Ef Ei)
+
+is-equiv-bottom-is-equiv-top-square :
+  {i j k l : Level} {A : UU i} {B : UU j} {C : UU k} {D : UU l}
+  (f : A → B) (g : C → D) (h : A → C) (i : B → D) (H : (i ∘ f) ~ (g ∘ h)) →
+  (is-equiv f) → (is-equiv g) → (is-equiv h) → (is-equiv i)
+is-equiv-bottom-is-equiv-top-square f g h i H Ef Eg Eh =
+  is-equiv-left-factor (g ∘ h) i f (htpy-inv H)
+    (is-equiv-comp (g ∘ h) g h (htpy-refl _) Eh Eg) Ef
+
+fib-triangle : {i j k : Level} {X : UU i} {A : UU j} {B : UU k}
+  (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h))
+  (x : X) → (fib f x) → (fib g x)
 fib-triangle f g h H .(f a) (dpair a refl) = dpair (h a) (inv (H a))
 
-tr-fiber : {i j : Level} {A : UU i} {B : UU j} (f : A → B) {x y : B} (p : Id x y) (a : A) (q : Id (f a) x) → Id (tr (fib f) p (dpair a q)) (dpair a (concat x q p))
-tr-fiber f refl a refl = refl
+square-tot-fib-triangle : {i j k : Level} {X : UU i} {A : UU j} {B : UU k}
+  (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) →
+  (h ∘ (Σ-fib-to-domain f)) ~
+  ((Σ-fib-to-domain g) ∘ (tot (fib-triangle f g h H)))
+square-tot-fib-triangle f g h H (dpair .(f a) (dpair a refl)) = refl
 
-square-tot-fib-triangle : {i j k : Level} {X : UU i} {A : UU j} {B : UU k} (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) → ((tot (fib-triangle f g h H)) ∘ (domain-to-fiber f)) ~ ((domain-to-fiber g) ∘ h)
-square-tot-fib-triangle f g h H a =
-  eq-pair
-    ( dpair
-      ( H a)
-      ( concat
-        ( dpair (h a) (concat _ (inv (H a)) (H a)))
-        ( tr-fiber g (H a) (h a) (inv (H a)))
-        ( eq-pair (dpair refl (left-inv (H a))))))
-
-is-fiberwise-equiv-fib-triangle-equiv : {i j k : Level} {X : UU i} {A : UU j} {B : UU k} (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) → (E : is-equiv h) → is-fiberwise-equiv (fib-triangle f g h H)
-is-fiberwise-equiv-fib-triangle-equiv f g h H E =
+is-fiberwise-equiv-is-equiv-triangle : {i j k : Level}
+  {X : UU i} {A : UU j} {B : UU k}
+  (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) →
+  (E : is-equiv h) → is-fiberwise-equiv (fib-triangle f g h H)
+is-fiberwise-equiv-is-equiv-triangle f g h H E =
   is-fiberwise-equiv-is-equiv-tot
     ( fib-triangle f g h H)
-    ( is-equiv-left-factor
-      ( (domain-to-fiber g) ∘ h)
+    ( is-equiv-top-is-equiv-bottom-square
+      ( Σ-fib-to-domain f)
+      ( Σ-fib-to-domain g)
       ( tot (fib-triangle f g h H))
-      ( domain-to-fiber f)
-      ( htpy-inv (square-tot-fib-triangle f g h H))
-      ( is-equiv-comp
-        ( (domain-to-fiber g) ∘ h)
-        ( domain-to-fiber g)
-        ( h)
-        ( htpy-refl _)
-        ( E)
-        (is-equiv-domain-to-fiber g))
-      ( is-equiv-domain-to-fiber f))
+      ( h)
+      ( square-tot-fib-triangle f g h H)
+      ( is-equiv-Σ-fib-to-domain f)
+      ( is-equiv-Σ-fib-to-domain g)
+      ( E))
+
+is-equiv-triangle-is-fiberwise-equiv :
+  {i j k : Level} {X : UU i} {A : UU j} {B : UU k}
+  (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) →
+  (E : is-fiberwise-equiv (fib-triangle f g h H)) → is-equiv h
+is-equiv-triangle-is-fiberwise-equiv f g h H E =
+  is-equiv-bottom-is-equiv-top-square
+    ( Σ-fib-to-domain f)
+    ( Σ-fib-to-domain g)
+    ( tot (fib-triangle f g h H))
+    ( h)
+    ( square-tot-fib-triangle f g h H)
+    ( is-equiv-Σ-fib-to-domain f)
+    ( is-equiv-Σ-fib-to-domain g)
+    ( is-equiv-tot-is-fiberwise-equiv (fib-triangle f g h H) E) 
 
 -- Exercise 7.7
 id-fundamental-retr : {i j : Level} {A : UU i} {B : A → UU j} (a : A) →
   (i : (x : A) → B x → Id a x) → (R : (x : A) → retr (i x)) →
-  (x : A) → is-equiv (i x)
+  is-fiberwise-equiv i
 id-fundamental-retr {_} {_} {A} {B} a i R =
   is-fiberwise-equiv-is-equiv-tot i
-    (is-equiv-is-contr (tot i)
-      (is-contr-retract-of (Σ _ (λ y → Id a y))
-        (dpair (tot i)
-          (dpair (tot λ x → pr1 (R x))
-            (htpy-concat
-              (tot (λ x → pr1 (R x) ∘ i x))
-              (htpy-inv (tot-comp i (λ x → pr1 (R x))))
-                (htpy-concat (tot (λ x → id))
-                  (tot-htpy λ x → pr2 (R x))
-                  (tot-id B)))))
-        (is-contr-total-path _ a))
-      (is-contr-total-path _ a))
+    ( is-equiv-is-contr (tot i)
+      ( is-contr-retract-of (Σ _ (λ y → Id a y))
+        ( dpair (tot i)
+          ( dpair (tot λ x → pr1 (R x))
+            ( htpy-concat
+              ( tot (λ x → pr1 (R x) ∘ i x))
+              ( htpy-inv (tot-comp i (λ x → pr1 (R x))))
+                ( htpy-concat (tot (λ x → id))
+                  ( tot-htpy λ x → pr2 (R x))
+                  ( tot-id B)))))
+        ( is-contr-total-path _ a))
+      ( is-contr-total-path _ a))
 
 -- Exercise 7.12
 
-coherence-reduction-map : {i j : Level} {A : UU i} {B : A → UU j} (a : A) (α : (x : A) → B x → Id a x) →
+coherence-reduction-map : {i j : Level} {A : UU i} {B : A → UU j}
+  (a : A) (α : (x : A) → B x → Id a x) →
   (Σ (B a) (λ b → Id (α a b) refl)) → Σ A B
 coherence-reduction-map a α (dpair b p) = dpair a b
 
-is-contr-coherence-reduction-map : {i j : Level} {A : UU i} {B : A → UU j} (a : A) (α : (x : A) → B x → Id a x) → is-contr-map (coherence-reduction-map a α)
+is-contr-coherence-reduction-map : {i j : Level} {A : UU i} {B : A → UU j}
+  (a : A) (α : (x : A) → B x → Id a x) →
+  is-contr-map (coherence-reduction-map a α)
 is-contr-coherence-reduction-map a α (dpair x y) = {!!}
 
 \end{code}

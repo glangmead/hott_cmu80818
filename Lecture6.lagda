@@ -265,32 +265,37 @@ left-unit-law-Σ : {i j : Level} {C : UU i} (B : C → UU j) (H : is-contr C) �
 left-unit-law-Σ B H = dpair (left-unit-law-Σ-map B H) (is-equiv-left-unit-law-Σ-map B H)
 
 -- Exercise 6.5
-domain-to-fiber : {i j : Level} {A : UU i} {B : UU j} (f : A → B) → A → Σ B (fib f)
-domain-to-fiber f x = dpair (f x) (dpair x refl)
-
-domain-to-fiber-triangle : {i j : Level} {A : UU i} {B : UU j} (f : A → B ) → f ~ (pr1 ∘ (domain-to-fiber f))
-domain-to-fiber-triangle f x = refl
-
-domain-to-fiber-conv : {i j : Level} {A : UU i} {B : UU j} (f : A → B ) → (Σ B (fib f)) → A
-domain-to-fiber-conv f (dpair y (dpair x p)) = x
-
-right-inverse-domain-to-fiber-conv : {i j : Level} {A : UU i} {B : UU j} (f : A → B ) → ((domain-to-fiber f) ∘ (domain-to-fiber-conv f)) ~ id
-right-inverse-domain-to-fiber-conv f (dpair .(f x) (dpair x refl)) = refl
-
-left-inverse-domain-to-fiber-conv : {i j : Level} {A : UU i} {B : UU j} (f : A → B ) → ((domain-to-fiber-conv f) ∘ (domain-to-fiber f)) ~ id
-left-inverse-domain-to-fiber-conv f x = refl
-
-is-equiv-domain-to-fiber : {i j : Level} {A : UU i} {B : UU j} (f : A → B ) → is-equiv (domain-to-fiber f)
-is-equiv-domain-to-fiber f = pair (dpair (domain-to-fiber-conv f) (right-inverse-domain-to-fiber-conv f)) (dpair (domain-to-fiber-conv f) (left-inverse-domain-to-fiber-conv f))
-
-equiv-domain-to-fiber : {i j : Level} {A : UU i} {B : UU j} (f : A → B ) → A ≃ Σ B (fib f)
-equiv-domain-to-fiber f = dpair (domain-to-fiber f) (is-equiv-domain-to-fiber f)
+tr-fiber : {i j : Level} {A : UU i} {B : UU j} (f : A → B) {x y : B} (p : Id x y) (a : A) (q : Id (f a) x) → Id (tr (fib f) p (dpair a q)) (dpair a (concat x q p))
+tr-fiber f refl a refl = refl
 
 -- Exercise 6.6
+Σ-fib-to-domain : {i j : Level} {A : UU i} {B : UU j} (f : A → B ) → (Σ B (fib f)) → A
+Σ-fib-to-domain f (dpair y (dpair x p)) = x
+
+triangle-Σ-fib-to-domain : {i j : Level} {A : UU i} {B : UU j} (f : A → B ) → pr1 ~ (f ∘ (Σ-fib-to-domain f))
+triangle-Σ-fib-to-domain f (dpair y (dpair x p)) = inv p
+
+domain-to-Σ-fib : {i j : Level} {A : UU i} {B : UU j} (f : A → B) → A → Σ B (fib f)
+domain-to-Σ-fib f x = dpair (f x) (dpair x refl)
+
+left-inverse-domain-to-Σ-fib : {i j : Level} {A : UU i} {B : UU j} (f : A → B ) → ((domain-to-Σ-fib f) ∘ (Σ-fib-to-domain f)) ~ id
+left-inverse-domain-to-Σ-fib f (dpair .(f x) (dpair x refl)) = refl
+
+right-inverse-domain-to-Σ-fib : {i j : Level} {A : UU i} {B : UU j} (f : A → B ) → ((Σ-fib-to-domain f) ∘ (domain-to-Σ-fib f)) ~ id
+right-inverse-domain-to-Σ-fib f x = refl
+
+is-equiv-Σ-fib-to-domain : {i j : Level} {A : UU i} {B : UU j} (f : A → B ) → is-equiv (Σ-fib-to-domain f)
+is-equiv-Σ-fib-to-domain f = pair (dpair (domain-to-Σ-fib f) (right-inverse-domain-to-Σ-fib f)) (dpair (domain-to-Σ-fib f) (left-inverse-domain-to-Σ-fib f))
+
+equiv-Σ-fib-to-domain : {i j : Level} {A : UU i} {B : UU j} (f : A → B ) → Σ B (fib f) ≃ A
+equiv-Σ-fib-to-domain f = dpair (Σ-fib-to-domain f) (is-equiv-Σ-fib-to-domain f)
+
+-- Exercise 6.7
 is-contr-left-factor-prod : {i j : Level} (A : UU i) (B : UU j) → is-contr (A × B) → is-contr A
 is-contr-left-factor-prod A B H = is-contr-retract-of (A × B) (dpair (λ x → pair x (pr2 (center H))) (dpair pr1 (λ x → refl))) H
 
 is-contr-right-factor-prod : {i j : Level} (A : UU i) (B : UU j) → is-contr (A × B) → is-contr B
 is-contr-right-factor-prod A B H = is-contr-left-factor-prod B A (is-contr-is-equiv (swap-prod B A) (is-equiv-swap-prod B A) H)
+
 
 \end{code}
