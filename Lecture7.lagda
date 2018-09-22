@@ -42,10 +42,10 @@ is-equiv-tot-is-fiberwise-equiv :
   is-equiv (tot f )
 is-equiv-tot-is-fiberwise-equiv f H =
   is-equiv-is-contr-map
-    (λ t → is-contr-is-equiv
-      (fib-ftr-fib-tot f t)
-      (is-equiv-fib-ftr-fib-tot f t)
-      (is-contr-map-is-equiv (H _) (pr2 t)))
+    ( λ t → is-contr-is-equiv _
+      ( fib-ftr-fib-tot f t)
+      ( is-equiv-fib-ftr-fib-tot f t)
+      ( is-contr-map-is-equiv (H _) (pr2 t)))
 
 -- Conversely, any fiberwise transformation that induces an equivalence on total spaces is a fiberwise equivalence.
 is-fiberwise-equiv-is-equiv-tot :
@@ -54,7 +54,7 @@ is-fiberwise-equiv-is-equiv-tot :
   is-fiberwise-equiv f
 is-fiberwise-equiv-is-equiv-tot f H x =
   is-equiv-is-contr-map
-    (λ z → is-contr-is-equiv'
+    (λ z → is-contr-is-equiv' _
       (fib-ftr-fib-tot f (dpair x z))
       (is-equiv-fib-ftr-fib-tot f (dpair x z))
       (is-contr-map-is-equiv H (dpair x z)))
@@ -77,7 +77,7 @@ id-fundamental {i} {j} {A} {B} a b H =
 id-fundamental' : {i j : Level} {A : UU i} {B : A → UU j} (a : A) (b : B a) →
   (is-fiberwise-equiv (ind-Id a (λ x p → B x) b)) → is-contr (Σ A B)
 id-fundamental' {i} {j} {A} {B} a b H =
-  is-contr-is-equiv'
+  is-contr-is-equiv' _
     (tot (ind-Id a (λ x p → B x) b))
     (is-equiv-tot-is-fiberwise-equiv _ H)
     (is-contr-total-path A a)
@@ -89,7 +89,7 @@ is-emb f = (x y : _) → is-equiv (ap f {x} {y})
 is-emb-is-equiv : {i j : Level} {A : UU i} {B : UU j} (f : A → B) → is-equiv f → is-emb f
 is-emb-is-equiv {i} {j} {A} {B} f E x =
   id-fundamental-gen x refl
-    (is-contr-is-equiv' (tot (λ y (p : Id (f y) (f x)) → inv p))
+    (is-contr-is-equiv' _ (tot (λ y (p : Id (f y) (f x)) → inv p))
         (is-equiv-tot-is-fiberwise-equiv _ (λ y → is-equiv-inv (f y) (f x)))
       (is-contr-map-is-equiv E (f x)))
     (λ y p → ap f p)
@@ -211,9 +211,53 @@ coherence-reduction-map : {i j : Level} {A : UU i} {B : A → UU j}
   (Σ (B a) (λ b → Id (α a b) refl)) → Σ A B
 coherence-reduction-map a α (dpair b p) = dpair a b
 
+equiv-idtypes-fam-in-id : {i j : Level} {A : UU i} {B : A → UU j}
+  (a : A) (α : (x : A) → B x → Id a x) →
+  {x : A} (p : Id a x) (b : B x) → (Id (α a (tr B (inv p) b)) refl) ≃ (Id (α x b) p)
+equiv-idtypes-fam-in-id a α refl b = dpair id (is-equiv-id (Id (α a b) refl))
+
 is-contr-coherence-reduction-map : {i j : Level} {A : UU i} {B : A → UU j}
   (a : A) (α : (x : A) → B x → Id a x) →
   is-contr-map (coherence-reduction-map a α)
-is-contr-coherence-reduction-map a α (dpair x y) = {!!}
+is-contr-coherence-reduction-map {i} {j} {A} {B} a α (dpair x y) =
+  is-contr-is-equiv
+    ( Σ (B a)
+      ( λ b → Σ (Id (α a b) refl)
+        ( λ p → Id (coherence-reduction-map a α (dpair b p)) (dpair x y))))
+    ( Σ-assoc
+      ( B a)
+      ( λ y → Id (α a y) refl)
+      ( λ z → Id (coherence-reduction-map a α z) (dpair x y)))
+    ( is-equiv-Σ-assoc _ _ _)
+    ( is-contr-is-equiv
+      ( Σ (B a)
+        ( λ b → Σ (Id (α a b) refl)
+          ( λ p → Σ (Id a x)
+            ( λ q → Id (tr B q b) y))))
+      {!!} {!!} {!!})
+
+coherence-introduction-map : {i j : Level} {A : UU i} {B : A → UU j}
+  (a : A) (α : (x : A) → B x → Id a x) →
+  (Σ A B) → (Σ (B a) (λ b → Id (α a b) refl))
+coherence-introduction-map a α (dpair x y) =
+  dpair
+    ( tr _ (inv (α x y)) y)
+    ( concat
+      ( concat x (α x y) (inv (α x y)))
+      ( concat refl (eqv-map (equiv-idtypes-fam-in-id a α refl (tr _ (inv (α x y)) y)) {!!}) (inv (right-inv (α x y))))
+      ( right-inv (α x y)))
+
+right-inverse-coherence-introduction-map :
+  {i j : Level} {A : UU i} {B : A → UU j}
+  (a : A) (α : (x : A) → B x → Id a x) →
+  ((coherence-reduction-map a α) ∘ (coherence-introduction-map a α)) ~ id
+right-inverse-coherence-introduction-map a α (dpair x y) =
+  inv (lift (inv (α x y)) y)
+
+left-inverse-coherence-introduction-map :
+  {i j : Level} {A : UU i} {B : A → UU j}
+  (a : A) (α : (x : A) → B x → Id a x) →
+  ((coherence-introduction-map a α) ∘ (coherence-reduction-map a α)) ~ id
+left-inverse-coherence-introduction-map {i} {j} {A} {B} a α (dpair b p) = {!!}
 
 \end{code}

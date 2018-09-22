@@ -217,13 +217,13 @@ is-equiv-const-is-contr {i} {A} H = pair (dpair (ind-unit (center H)) (ind-unit 
 is-contr-is-equiv-const : {i : Level} {A : UU i} → is-equiv (const A unit star) → is-contr A
 is-contr-is-equiv-const (dpair (dpair g issec) (dpair h isretr)) = dpair (h star) isretr
 
-is-contr-is-equiv : {i j : Level} {A : UU i} {B : UU j} (f : A → B) → is-equiv f → is-contr B → is-contr A
-is-contr-is-equiv f Ef C =
+is-contr-is-equiv : {i j : Level} {A : UU i} (B : UU j) (f : A → B) → is-equiv f → is-contr B → is-contr A
+is-contr-is-equiv B f Ef C =
   is-contr-is-equiv-const
     (is-equiv-comp _ _ f (λ x → refl) Ef (is-equiv-const-is-contr C))
 
-is-contr-is-equiv' : {i j : Level} {A : UU i} {B : UU j} (f : A → B) → is-equiv f → is-contr A → is-contr B
-is-contr-is-equiv' f Ef C = is-contr-is-equiv (inv-is-equiv Ef) (is-equiv-inv-is-equiv Ef) C
+is-contr-is-equiv' : {i j : Level} (A : UU i) {B : UU j} (f : A → B) → is-equiv f → is-contr A → is-contr B
+is-contr-is-equiv' A f Ef C = is-contr-is-equiv A (inv-is-equiv Ef) (is-equiv-inv-is-equiv Ef) C
 
 is-equiv-is-contr : {i j : Level} {A : UU i} {B : UU j} (f : A → B) →
   is-contr A → is-contr B → is-equiv f
@@ -295,7 +295,7 @@ is-contr-left-factor-prod : {i j : Level} (A : UU i) (B : UU j) → is-contr (A 
 is-contr-left-factor-prod A B H = is-contr-retract-of (A × B) (dpair (λ x → pair x (pr2 (center H))) (dpair pr1 (λ x → refl))) H
 
 is-contr-right-factor-prod : {i j : Level} (A : UU i) (B : UU j) → is-contr (A × B) → is-contr B
-is-contr-right-factor-prod A B H = is-contr-left-factor-prod B A (is-contr-is-equiv (swap-prod B A) (is-equiv-swap-prod B A) H)
+is-contr-right-factor-prod A B H = is-contr-left-factor-prod B A (is-contr-is-equiv (A × B) (swap-prod B A) (is-equiv-swap-prod B A) H)
 
 
 \end{code}
