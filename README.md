@@ -1,4 +1,7 @@
 # hott_cmu80818
+
+*UPDATE*: This repo is deprecated. Please use Egbert's new repo: https://github.com/EgbertRijke/HoTT-Intro
+
 Companion code to CMU course on Homotopy Type Theory, the Spring 2018 version taught by Egbert Rijke
 http://www.andrew.cmu.edu/user/erijke/hott/
 
